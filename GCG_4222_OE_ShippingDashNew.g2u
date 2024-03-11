@@ -1,0 +1,891 @@
+Program.Sub.ScreenSU.Start
+Gui.F_Ship..Create
+Gui.F_Ship..Caption("Shipping Review")
+Gui.F_Ship..Size(26160,11490)
+Gui.F_Ship..MinX(15900)
+Gui.F_Ship..MinY(5000)
+Gui.F_Ship..Position(0,0)
+Gui.F_Ship..BackColor(-2147483633)
+Gui.F_Ship..MousePointer(0)
+Gui.F_Ship..Event(UnLoad,F_Ship_UnLoad)
+Gui.F_Ship.cmdRefresh.Create(Button)
+Gui.F_Ship.cmdRefresh.Size(2505,375)
+Gui.F_Ship.cmdRefresh.Position(23220,9570)
+Gui.F_Ship.cmdRefresh.Caption("Refresh")
+Gui.F_Ship.cmdRefresh.Event(Click,Recreate)
+Gui.F_Ship.cmdExcel.Create(Button)
+Gui.F_Ship.cmdExcel.Size(2505,375)
+Gui.F_Ship.cmdExcel.Position(23220,10005)
+Gui.F_Ship.cmdExcel.Caption("Export to Excel")
+Gui.F_Ship.cmdExcel.Event(Click,cmdExcel_Click)
+Gui.F_Ship.cmdOpenOf.Create(Button)
+Gui.F_Ship.cmdOpenOf.Size(2505,375)
+Gui.F_Ship.cmdOpenOf.Position(23220,10425)
+Gui.F_Ship.cmdOpenOf.Caption("Export to Open Office")
+Gui.F_Ship.cmdOpenOf.Event(Click,cmdOpenOf_Click)
+Gui.F_Ship.optView.Create(Option)
+Gui.F_Ship.optView.Size(1005,255)
+Gui.F_Ship.optView.Position(22005,9855)
+Gui.F_Ship.optView.Caption("View")
+Gui.F_Ship.optView.ControlGroup(1)
+Gui.F_Ship.optView.Event(Click,optView_Click)
+Gui.F_Ship.optEdit.Create(Option)
+Gui.F_Ship.optEdit.Size(1005,255)
+Gui.F_Ship.optEdit.Position(22005,10170)
+Gui.F_Ship.optEdit.Caption("Edit")
+Gui.F_Ship.optEdit.ControlGroup(1)
+Gui.F_Ship.optEdit.Event(Click,optView_Click)
+Gui.F_Ship.optShip.Create(Option)
+Gui.F_Ship.optShip.Size(1005,255)
+Gui.F_Ship.optShip.Position(22005,10485)
+Gui.F_Ship.optShip.Caption("Ship")
+Gui.F_Ship.optShip.ControlGroup(1)
+Gui.F_Ship.optShip.Event(Click,optView_Click)
+Gui.F_Ship.timer.Create(Timer)
+Gui.F_Ship.timer.Size(4290,495)
+Gui.F_Ship.timer.Position(285,10230)
+Gui.F_Ship.timer.Interval(5000)
+Gui.F_Ship.timer.DefaultValue("")
+Gui.F_Ship.timer.Event(Timer,timer_Timer)
+Gui.F_Ship.timer.Enabled(False)
+Gui.F_Ship.ggcShip.Create(GsGridControl)
+Gui.F_Ship.ggcShip.Size(25575,9270)
+Gui.F_Ship.ggcShip.Position(105,135)
+Gui.F_Ship.ggcShip.Event(RowCellClick,ggcShip_RowCellClick)
+Gui.F_Ship.ggcShip.Event(CellValueChanged,ggcShip_CellValueChanged)
+Gui.F_Part..Create
+Gui.F_Part..Caption("Item Details")
+Gui.F_Part..Size(11040,9345)
+Gui.F_Part..MinX(8500)
+Gui.F_Part..MinY(5000)
+Gui.F_Part..Position(0,0)
+Gui.F_Part..BackColor(-2147483633)
+Gui.F_Part..MousePointer(0)
+Gui.F_Part..Event(UnLoad,F_Part_UnLoad)
+Gui.F_Part.txtPart.Create(TextBox,"",True,1995,300,0,210,405,True,0,"Arial",8,-2147483643,1)
+Gui.F_Part.txtPart.Locked(True)
+Gui.F_Part.txtLoc.Create(TextBox,"",True,495,300,0,2295,405,True,0,"Arial",8,-2147483643,1)
+Gui.F_Part.txtLoc.Locked(True)
+Gui.F_Part.txtDesc.Create(TextBox,"",True,3030,300,0,3000,405,True,0,"Arial",8,-2147483643,1)
+Gui.F_Part.txtDesc.Locked(True)
+Gui.F_Part.lblPart.Create(Label,"Part",True,1500,255,0,195,195,True,0,"Arial",8,-2147483633,0)
+Gui.F_Part.lblLoc.Create(Label,"Loc",True,495,255,0,2295,195,True,0,"Arial",8,-2147483633,0)
+Gui.F_Part.lblDesc.Create(Label,"Description",True,1935,255,0,3000,195,True,0,"Arial",8,-2147483633,0)
+Gui.F_Part.lblOrder.Create(Label,"Order:",True,1935,255,0,6255,195,True,0,"Arial",8,-2147483633,0)
+Gui.F_Part.ggcPart.Create(GsGridControl)
+Gui.F_Part.ggcPart.Size(10440,7725)
+Gui.F_Part.ggcPart.Position(180,840)
+Program.Sub.ScreenSU.End
+
+Program.Sub.Preflight.Start
+Program.Sub.Preflight.End
+
+Program.Sub.Main.Start
+F.Intrinsic.Control.SetErrorHandler("Main_Err")
+F.Intrinsic.Control.ClearErrors
+
+V.Local.sError.Declare(String)
+
+'The original project has three UDTs. The first one (uShipSchd) pulls all lines from the V_OE_SHIP_SCHED table. Then it transfers all informationinto the main table (uData2), storing QTY_SCHED into the appropriate day column
+'Then the third table (uData) gets populated. The information on the first table (uData2) gets filled in from the third table (uData) for all existing entries in uData2, then 
+'This project was created for Mixer Direct. It was translated to use Data Table isntead of UDT's 
+'by FEQ on Jan 2017
+'This code runs from a custom menu item. Itll display a grid with orders to be shipped that can be reordered, edited, and exported to either excel or open office. It has a timer to be refreshed automatically every two minutes.
+
+V.Local.bFlag.Declare(Boolean)
+
+F.ODBC.Connection!con.OpenConnection(V.Ambient.PDSN, V.Ambient.PUser, v.Ambient.PPass)
+
+'Check security group and make View/edit/ship available accordingly
+F.Global.Security.IsInGroup(V.Caller.User, "EDIT", V.Local.bFlag)
+F.Intrinsic.Control.If(V.Local.bFlag,=,"False")
+	Gui.F_Ship.optEdit.Enabled(0)
+F.Intrinsic.Control.Else
+	Gui.F_Ship.optEdit.Enabled(1)
+F.Intrinsic.Control.EndIf
+
+F.Global.Security.IsInGroup(V.Caller.User, "SHIP", V.Local.bFlag)
+F.Intrinsic.Control.If(V.Local.bFlag, =, "False")
+	Gui.F_Ship.optShip.Enabled(0)
+F.Intrinsic.Control.Else
+	Gui.F_Ship.optShip.Enabled(1)
+F.Intrinsic.Control.EndIf
+
+Gui.F_Ship.optView.Value(1)
+
+F.Intrinsic.Control.CallSub(recreate)
+
+F.Intrinsic.Control.ExitSub
+
+F.Intrinsic.Control.Label("Main_Err")
+F.Intrinsic.Control.If(V.Ambient.ErrorNumber,<>,0)
+	Function.Intrinsic.String.Concat("Project: GCG_4222_OE_SiscoDash.g2u.g2c",V.Ambient.Newline,V.Ambient.Newline,"Subroutine: ",V.Ambient.CurrentSubroutine,V.Ambient.NewLine,"Error Occurred ",V.Ambient.ErrorNumber," with description ",V.Ambient.ErrorDescription,V.Local.sError)
+	F.Intrinsic.UI.Msgbox(V.Local.sError)
+	F.Intrinsic.Control.CallSub(f_ship_unload)
+Function.Intrinsic.Control.EndIf
+Program.Sub.Main.End
+
+Program.Sub.Recreate.Start
+F.Intrinsic.Control.SetErrorHandler("Recreate_Err")
+F.Intrinsic.Control.ClearErrors
+
+V.Local.sError.Declare(String)
+
+V.Local..BulkDeclareString(sSql, sIF, sD1, sD2, sD3)
+V.Local..BulkDeclareDate(dD1, dD2, dD3, dToday, dFormat, dEst, dProm)
+V.Local.iCount.Declare(Long)
+V.Local.iDiff.Declare(Long)
+
+'These values are for the shipment quantity columns
+Function.Intrinsic.Date.DateAddWorkdays(V.Ambient.Date, 1, V.Local.dD1)
+Function.Intrinsic.Date.DateAddWorkdays(V.Ambient.Date, 2, V.Local.dD2)
+Function.Intrinsic.Date.DateAddWorkdays(V.Ambient.Date, 3, V.Local.dD3)
+Function.Intrinsic.String.Split(V.Ambient.Date, " ", V.Local.dToday)
+Function.Intrinsic.String.Split(V.Local.dD1, " ", V.Local.sD1)
+Function.Intrinsic.String.Split(V.Local.dD2, " ", V.Local.sD2)
+Function.Intrinsic.String.Split(V.Local.dD3, " ", V.Local.sD3)
+
+Gui.F_Ship..Visible(False)
+
+'This subroutine gets called on refres, so we close the tables to re-open them for fresh data
+F.Intrinsic.Control.If(V.DataTable.uData.Exists, =, True)
+	F.Data.DataTable.Close("uShip")
+	F.Data.DataTable.Close("uData")	
+	F.Data.DataTable.Close("uParts")
+	F.Data.DataTable.Close("Final")
+F.Intrinsic.Control.EndIf
+
+'This uParts table is used when the user clicks on the qty on hand column. it will display the quantities available to ship from inventory and their location in lot heat bin
+F.Data.DataTable.CreateFromSQL("uParts", "con", "Select Part, Location, Lot, Heat, Bin, SERIAL_NUMBER as 'Serial Number', Quantity, QTY_AVAILABLE_SHIP as 'Qty Available to Ship' From V_ITEM_MASTER ", True)
+
+'This query is the base for the Grid in the main screen. Some values are empty to be filled through dictionaries, and more fields will be added through expression columns
+'V.Local.sSql.Set("SELECT VOL.Customer, VOST.Name_Customer_Ship, VOL.PRODUCT_LINE, VOL.LOCATION, VOL.Part, VOL.CUSTOMER_PART, VOL.Description, VOH.Customer_PO, VOH.Order_NO,VOL.DATE_ITEM_PROM, VOL.User_1, VOL.User_2, VOL.User_3, ")
+'F.Intrinsic.String.Build("{0} LEFT(VOL.Record_NO,3) AS Record_NO, VOL.WEIGHT, VOL.SHIP_ID, (RTRIM(VOST.CITY_SHIP)+','+VOST.STATE_SHIP) AS SHIPCITYST, VOL.Pallets, VOL.FLAG_USE_MQD, VOL.QTY_BO, isnull(VIM.QTY_ONHAND, 0) as QTY_ONHAND ", V.Local.sSql, V.Local.sSql)
+'F.Intrinsic.String.Build("{0} FROM V_Order_Lines VOL LEFT JOIN V_Order_Header VOH ON VOL.Order_NO = VOH.Order_NO ",V.Local.sSql, V.Local.sSql)
+'F.Intrinsic.String.Build("{0} LEFT JOIN V_INVENTORY_MSTR VIM ON VOL.PART = VIM.PART AND VOL.LOCATION=VIM.LOCATION ",V.Local.sSql, V.Local.sSql)
+'F.Intrinsic.String.Build("{0} JOIN V_ORDER_SHIP_TO VOST ON VOST.ORDER_NO = VOL.ORDER_NO AND VOST.SHIP_Id = VOL.SHIP_ID  ",V.Local.sSql, V.Local.sSql)
+
+V.Local.sSql.Set("SELECT VOST.Name_Customer_Ship, VOL.Part, VOL.LOCATION, VOL.Description, VOL.PRODUCT_LINE, VOH.Customer_PO, VOH.Order_NO, LEFT(VOL.Record_NO,3) AS Record_NO, ")
+F.Intrinsic.String.Build("{0} (RTRIM(VOST.CITY_SHIP)+','+VOST.STATE_SHIP) AS SHIPCITYST, VOL.DATE_ITEM_PROM, RTRIM(VOL.User_1) as USER_1, RTRIM(VOL.User_2) as USER_2, RTRIM(VOL.User_3) as USER_3, VOL.Pallets, VOL.FLAG_USE_MQD, VOL.QTY_BO, ", V.Local.sSql, V.Local.sSql)
+F.Intrinsic.String.Build("{0} isnull(VIM.QTY_ONHAND, 0) as QTY_ONHAND, VOL.Customer, VOL.CUSTOMER_PART, VOL.SHIP_ID FROM V_Order_Lines VOL LEFT JOIN V_Order_Header VOH ON VOL.Order_NO = VOH.Order_NO", V.Local.sSql, V.Local.sSql)
+F.Intrinsic.String.Build("{0} LEFT JOIN V_INVENTORY_MSTR VIM ON VOL.PART = VIM.PART AND VOL.LOCATION=VIM.LOCATION JOIN V_ORDER_SHIP_TO VOST ON VOST.ORDER_NO = VOL.ORDER_NO AND VOST.SHIP_Id = VOL.SHIP_ID", V.Local.sSql, V.Local.sSql)
+F.Data.DataTable.CreateFromSql("uData", "con", V.Local.sSql, True)
+
+'This will be used to fill the table from dictionaries
+F.Data.DataTable.AddExpressionColumn("uData", "OrdLn", "String", "[Order_NO]+[Record_NO]")
+F.Data.DataTable.AddColumn("uData", "Date_Due", "Date")
+F.Data.DataTable.AddColumn("uData", "QTY_SCHED", "Float")
+F.Data.DataTable.AddColumn("uData", "EstDate", "Date")
+F.Data.DataTable.AddColumn("uData", "Difference", "Long")
+
+V.Local.sSql.Set("SELECT ORDER_NO + LEFT(ORDER_LINE, 3) as OrdLn, ORDER_NO, LEFT(ORDER_LINE,3) AS ORDER_LINE, DATE_DUE, QTY_SCHED, QTY_OPEN FROM V_OE_SHIP_SCHED WHERE FLAG_CLOSED='N' and DATE_DUE <> '1900-01-01'")
+'Function.Intrinsic.String.Build("{0}'' as {1}, '' as {2}, '' as {3}, '' as Later FROM V_OE_SHIP_SCHED WHERE FLAG_CLOSED='N' and DATE_DUE <> '1900-01-01'", V.Local.sSql, V.Local.dD1, V.Local.dD2, V.Local.dD3, V.Local.sSql)
+F.Data.DataTable.CreateFromSql("uShip", "con", V.Local.sSql, True)
+
+F.Data.Dictionary.CreateFromDataTable("Date", "uShip", "OrdLn", "DATE_DUE")
+F.Data.Dictionary.SetDefaultReturn("Date", "1/1/2900")
+F.Data.DataTable.FillFromDictionary("uData", "Date", "OrdLn", "Date_Due")
+F.Data.Dictionary.Close("Date")
+
+F.Data.Dictionary.CreateFromDataTable("QTY", "uShip", "OrdLn", "QTY_SCHED")
+F.Data.Dictionary.SetDefaultReturn("QTY", "0")
+F.Data.DataTable.FillFromDictionary("uData", "QTY", "OrdLn", "QTY_SCHED")
+F.Data.Dictionary.Close("QTY")
+
+V.Local.sSql.Set("Select RTRIM(ORDER_NO) + LEFT(LINE, 3) as OrdLn, ESD from GCG_4222_OE_ESD")
+F.Data.DataTable.CreateFromSQL("ESD", "con", V.Local.sSql, True)
+
+F.Data.Dictionary.CreateFromDataTable("EstDate", "ESD", "OrdLn", "ESD")
+'F.Intrinsic.String.Format("1/1/2900", "MM/DD/YYYY", V.Local.dFormat)
+F.Data.Dictionary.SetDefaultReturn("EstDate", "1/1/2900")
+F.Data.DataTable.FillFromDictionary("uData", "EstDate", "OrdLn", "EstDate")
+F.Data.Dictionary.Close("EstDate")
+F.Data.DataTable.Close("ESD")
+
+'This calculates how many days the shipment is date
+
+F.Data.DataTable.AddExpressionColumn("uData", "FinalQTY", "Float", "IIF(FLAG_USE_MQD = 'Y', QTY_SCHED, QTY_BO)")
+F.Data.DataTable.AddExpressionColumn("uData", "RealDate", "Date", "IIF(FLAG_USE_MQD = 'Y', Date_Due, DATE_ITEM_PROM)")
+F.Data.DataTable.AddExpressionColumn("uData", "FinalDate", "Date", "IIF(RealDate <> '1/1/1900', RealDate, '1/1/2900')")
+
+'We have to sort the value of the shipment into the appropriate column. sD1 is for tomorro, sD2 is for the day after, sD3 is for the next day. Anything after goes into the After column
+Function.Intrinsic.String.Build("IIF(EstDate<'{0}', FinalQTY, '')", V.Local.dToday, V.Local.sIF)
+F.Data.DataTable.AddExpressionColumn("uData", "Prior", "String", V.Local.sIF)
+
+Function.Intrinsic.String.Build("IIF(EstDate='{0}', FinalQTY, '')", V.Local.dToday, V.Local.sIF)
+F.Data.DataTable.AddExpressionColumn("uData", "Today", "String", V.Local.sIF)
+
+Function.Intrinsic.String.Build("IIF(EstDate='{0}', FinalQTY, '')", V.Local.dD1, V.Local.sIF)
+F.Data.DataTable.AddExpressionColumn("uData", V.Local.sD1, "String", V.Local.sIF)
+
+Function.Intrinsic.String.Build("IIF(EstDate='{0}', FinalQTY, '')", V.Local.dD2, V.Local.sIF)
+F.Data.DataTable.AddExpressionColumn("uData", V.Local.sD2, "String", V.Local.sIF)
+
+Function.Intrinsic.String.Build("IIF(EstDate='{0}', FinalQTY, '')", V.Local.dD3, V.Local.sIF)
+F.Data.DataTable.AddExpressionColumn("uData", V.Local.sD3, "String", V.Local.sIF)
+
+Function.Intrinsic.String.Build("IIF(EstDate>'{0}', FinalQTY, '')", V.Local.dD3, V.Local.sIF)
+F.Data.DataTable.AddExpressionColumn("uData", "After", "String", V.Local.sIF)
+
+F.Intrinsic.Control.For(V.Local.iCount, 0, V.DataTable.uData.RowCount--, 1)
+	V.Local.dEst.Set(V.DataTable.uData(V.Local.iCount).EstDate!FieldVal)
+	V.Local.dProm.Set(V.DataTable.uData(V.Local.iCount).DATE_ITEM_PROM!FieldVal)
+	F.Intrinsic.Date.DateDiff("D", V.Local.dProm, V.Local.dEst, V.Local.iDiff)
+	F.Data.DataTable.SetValue("uData", V.Local.iCount, "Difference", V.Local.iDiff)
+F.Intrinsic.Control.Next(V.Local.iCount)
+
+F.Data.DataTable.AddExpressionColumn("uData", "Late", "String", "IIF(Difference > '0', Difference, '')")
+
+V.Local.sSql.Set("SELECT VOH.CUSTOMER as Name_Customer_Ship, VOL.Part, VOL.Location, VOL.Description, VOL.PRODUCT_LINE, VOH.Customer_PO, VOH.Order_NO, LEFT(VOL.Record_NO,3) AS Record_NO, ")
+F.Intrinsic.String.Build("{0} (RTRIM(VOST.CITY_SHIP)+','+VOST.STATE_SHIP) AS SHIPCITYST ", V.Local.sSql, V.Local.sSql)
+F.Intrinsic.String.Build("{0} FROM V_Order_Lines VOL LEFT JOIN V_Order_Header VOH ON VOL.Order_NO = VOH.Order_NO", V.Local.sSql, V.Local.sSql)
+F.Intrinsic.String.Build("{0} LEFT JOIN V_INVENTORY_MSTR VIM ON VOL.PART = VIM.PART AND VOL.LOCATION=VIM.LOCATION JOIN V_ORDER_SHIP_TO VOST ON VOST.ORDER_NO = VOL.ORDER_NO AND VOST.SHIP_Id = VOL.SHIP_ID", V.Local.sSql, V.Local.sSql)
+F.Intrinsic.String.Build("{0} WHERE VOL.LINE_TYPE not in('F', 'P')", V.Local.sSql, V.Local.sSql)
+
+F.Data.DataTable.CreateFromSql("Final", "con", V.Local.sSql, True)
+F.Data.DataTable.AddExpressionColumn("Final", "OrdLn", "String", "[Order_NO]+[Record_NO]")
+
+'We will be using table FINAL to display the information. This is due to the fact that using visible index gets out of hand with this many columns an the customer wants a specific order of columns
+'We will be using dictionaries to fill in the data
+
+'The customer decided they want to use the Customer name from the sales order instead of the name of the customer for the shipment.
+F.Data.DataTable.CreateFromSQL("Cust", "con", "Select Customer, Name_Customer from V_CUSTOMER_MASTER", True)
+F.Data.Dictionary.CreateFromDataTable("CustName", "Cust", "Customer", "Name_Customer")
+F.Data.Dictionary.SetDefaultReturn("CustName", "")
+
+F.Data.DataTable.FillFromDictionary("Final", "CustName", "Name_Customer_Ship", "Name_Customer_Ship")
+F.Data.Dictionary.Close("CustName")
+F.Data.DataTable.Close("Cust")
+
+'class
+F.Data.DataTable.AddColumn("Final", "Class", "String")
+F.Data.Dictionary.CreateFromDataTable("Dclass", "uData", "OrdLn", "User_1")
+F.Data.Dictionary.SetDefaultReturn("DClass", "")
+F.Data.DataTable.FillFromDictionary("Final", "DClass", "OrdLn", "Class")
+F.Data.Dictionary.Close("Dclass")
+
+'Late
+F.Data.DataTable.AddColumn("Final", "Late", "String")
+F.Data.Dictionary.CreateFromDataTable("Dclass", "uData", "OrdLn", "Late")
+F.Data.Dictionary.SetDefaultReturn("Dclass", "")
+F.Data.DataTable.FillFromDictionary("Final", "DClass", "OrdLn", "Late")
+F.Data.Dictionary.Close("Dclass")
+
+
+'Today
+F.Data.DataTable.AddColumn("Final", "Today", "String")
+F.Data.Dictionary.CreateFromDataTable("Dclass", "uData", "OrdLn", "Today")
+F.Data.Dictionary.SetDefaultReturn("Dclass", "")
+F.Data.DataTable.FillFromDictionary("Final", "DClass", "OrdLn", "Today")
+F.Data.Dictionary.Close("Dclass")
+
+
+'Tomorrow
+F.Data.DataTable.AddColumn("Final", V.Local.sD1, "String")
+F.Data.Dictionary.CreateFromDataTable("Dclass", "uData", "OrdLn", V.Local.sD1)
+F.Data.Dictionary.SetDefaultReturn("Dclass", "")
+F.Data.DataTable.FillFromDictionary("Final", "DClass", "OrdLn", V.Local.sD1)
+F.Data.Dictionary.Close("Dclass")
+
+
+'in two days
+F.Data.DataTable.AddColumn("Final", V.Local.sD2, "String")
+F.Data.Dictionary.CreateFromDataTable("Dclass", "uData", "OrdLn", V.Local.sD2)
+F.Data.Dictionary.SetDefaultReturn("Dclass", "")
+F.Data.DataTable.FillFromDictionary("Final", "DClass", "OrdLn", V.Local.sD2)
+F.Data.Dictionary.Close("Dclass")
+
+
+'in three days
+F.Data.DataTable.AddColumn("Final", V.Local.sD3, "String")
+F.Data.Dictionary.CreateFromDataTable("Dclass", "uData", "OrdLn", V.Local.sD3)
+F.Data.Dictionary.SetDefaultReturn("Dclass", "")
+F.Data.DataTable.FillFromDictionary("Final", "DClass", "OrdLn", V.Local.sD3)
+F.Data.Dictionary.Close("Dclass")
+
+
+'later
+F.Data.DataTable.AddColumn("Final", "Later", "String")
+F.Data.Dictionary.CreateFromDataTable("Dclass", "uData", "OrdLn", "After")
+F.Data.Dictionary.SetDefaultReturn("Dclass", "")
+F.Data.DataTable.FillFromDictionary("Final", "DClass", "OrdLn", "Later")
+F.Data.Dictionary.Close("Dclass")
+
+
+'ESD
+F.Data.DataTable.AddColumn("Final", "ESD", "Date")
+F.Data.Dictionary.CreateFromDataTable("Dclass", "uData", "OrdLn", "EstDate")
+F.Data.Dictionary.SetDefaultReturn("Dclass", "")
+F.Data.DataTable.FillFromDictionary("Final", "DClass", "OrdLn", "ESD")
+F.Data.Dictionary.Close("Dclass")
+
+
+'$
+F.Data.DataTable.AddColumn("Final", "User_2", "String")
+F.Data.Dictionary.CreateFromDataTable("Dclass", "uData", "OrdLn", "User_2")
+F.Data.Dictionary.SetDefaultReturn("Dclass", "")
+F.Data.DataTable.FillFromDictionary("Final", "DClass", "OrdLn", "User_2")
+F.Data.Dictionary.Close("Dclass")
+
+
+'PD
+F.Data.DataTable.AddColumn("Final", "PD", "Date")
+F.Data.Dictionary.CreateFromDataTable("Dclass", "uData", "OrdLn", "DATE_ITEM_PROM")
+F.Data.Dictionary.SetDefaultReturn("Dclass", "")
+F.Data.DataTable.FillFromDictionary("Final", "DClass", "OrdLn", "PD")
+F.Data.Dictionary.Close("Dclass")
+
+
+'O/H
+F.Data.DataTable.AddColumn("Final", "O/H", "String")
+F.Data.Dictionary.CreateFromDataTable("Dclass", "uData", "OrdLn", "QTY_ONHAND")
+F.Data.Dictionary.SetDefaultReturn("Dclass", "")
+F.Data.DataTable.FillFromDictionary("Final", "DClass", "OrdLn", "O/H")
+F.Data.Dictionary.Close("Dclass")
+F.Data.DataTable.SetValueFormat("Final", -1, "O/H", "O/H", "#0.0")
+
+
+'Notes
+F.Data.DataTable.AddColumn("Final", "Notes", "String")
+F.Data.Dictionary.CreateFromDataTable("Dclass", "uData", "OrdLn", "User_3")
+F.Data.Dictionary.SetDefaultReturn("Dclass", "")
+F.Data.DataTable.FillFromDictionary("Final", "DClass", "OrdLn", "Notes")
+F.Data.Dictionary.Close("Dclass")
+
+'Days Overdue
+F.Data.DataTable.AddColumn("Final", "Days Overdue", "String")
+F.Data.Dictionary.CreateFromDataTable("Dclass", "uData", "OrdLn", "Difference")
+F.Data.Dictionary.SetDefaultReturn("Dclass", "")
+F.Data.DataTable.FillFromDictionary("Final", "DClass", "OrdLn", "Days Overdue")
+F.Data.Dictionary.Close("Dclass")
+
+'The customer wants to change where the Customer is being pulled from
+F.Data.DataTable.CreateFromSQL("CustomerFiller", "con", "SELECT NAME_CUSTOMER, ORDER_NO from ORDER_BILL_TO where RECORD_TYPE = 'B' ")
+F.Data.Dictionary.CreateFromDataTable("CustomerDict", "CustomerFiller", "ORDER_NO", "NAME_CUSTOMER")
+F.Data.Dictionary.SetDefaultReturn("CustomerDict", "No Bill To Customer")
+F.Data.DataTable.FillFromDictionary("Final", "CustomerDict", "ORDER_NO", "NAME_CUSTOMER_SHIP")
+F.Data.Dictionary.Close("CustomerDict")
+F.Data.DataTable.Close("CustomerFiller")
+
+F.Data.DataView.Create("Final", "FinalView")
+F.Data.DataView.SetSort("Final", "FinalView", "ESD ASC")
+
+'Make a dataview to display grid
+Gui.F_Ship.ggcShip.AddGridviewFromDataview("ShipGrid", "Final", "FinalView")
+'gui.F_Ship.ggcShip.SetColumnProperty("ShipGrid", "column", "Caption as string", "column name")
+gui.F_Ship.ggcShip.SetColumnProperty("ShipGrid", "Name_Customer_Ship", "Width", 150)
+gui.F_Ship.ggcShip.SetColumnProperty("ShipGrid", "Name_Customer_Ship", "Caption", "Customer Name")
+gui.F_Ship.ggcShip.SetColumnProperty("ShipGrid", "Name_Customer_Ship", "ReadOnly", True)
+
+gui.F_Ship.ggcShip.SetColumnProperty("ShipGrid", "Part", "Width", 110)
+gui.F_Ship.ggcShip.SetColumnProperty("ShipGrid", "Part", "Caption", "Part")
+gui.F_Ship.ggcShip.SetColumnProperty("ShipGrid", "Part", "ReadOnly", True)
+'
+'gui.F_Ship.ggcShip.SetColumnProperty("ShipGrid", "LOCATION", "Width", 25)
+'gui.F_Ship.ggcShip.SetColumnProperty("ShipGrid", "LOCATION", "Caption", "Loc")
+'gui.F_Ship.ggcShip.SetColumnProperty("ShipGrid", "LOCATION", "ReadOnly", True)
+
+gui.F_Ship.ggcShip.SetColumnProperty("ShipGrid", "Description", "Width", 130)
+gui.F_Ship.ggcShip.SetColumnProperty("ShipGrid", "Description", "Caption", "Part Description")
+gui.F_Ship.ggcShip.SetColumnProperty("ShipGrid", "Description", "ReadOnly", True)
+
+gui.F_Ship.ggcShip.SetColumnProperty("ShipGrid", "PRODUCT_LINE", "Width", 15)
+gui.F_Ship.ggcShip.SetColumnProperty("ShipGrid", "PRODUCT_LINE", "Caption", "PL")
+gui.F_Ship.ggcShip.SetColumnProperty("ShipGrid", "PRODUCT_LINE", "ReadOnly", True)
+
+gui.F_Ship.ggcShip.SetColumnProperty("ShipGrid", "Customer_PO", "Width", 100)
+gui.F_Ship.ggcShip.SetColumnProperty("ShipGrid", "Customer_PO", "Caption", "PO Number")
+gui.F_Ship.ggcShip.SetColumnProperty("ShipGrid", "Customer_PO", "ReadOnly", True)
+
+gui.F_Ship.ggcShip.SetColumnProperty("ShipGrid", "Order_NO", "Width", 40)
+gui.F_Ship.ggcShip.SetColumnProperty("ShipGrid", "Order_NO", "Caption", "Order #")
+gui.F_Ship.ggcShip.SetColumnProperty("ShipGrid", "Order_NO", "ReadOnly", True)
+gui.F_Ship.ggcShip.SetColumnProperty("ShipGrid", "Order_NO", "AllowEdit", False)
+gui.F_Ship.ggcShip.SetColumnProperty("ShipGrid", "Order_NO", "CellForeColor", V.Color.Blue)
+gui.F_Ship.ggcShip.SetColumnProperty("ShipGrid", "Order_NO", "CellFontUnderline", True)
+
+gui.F_Ship.ggcShip.SetColumnProperty("ShipGrid", "Record_NO", "Width",20)
+gui.F_Ship.ggcShip.SetColumnProperty("ShipGrid", "Record_NO", "Caption","Ln")
+gui.F_Ship.ggcShip.SetColumnProperty("ShipGrid", "Record_NO", "ReadOnly", True)
+
+gui.F_Ship.ggcShip.SetColumnProperty("ShipGrid", "SHIPCITYST", "Width", 100)
+gui.F_Ship.ggcShip.SetColumnProperty("ShipGrid", "SHIPCITYST", "Caption", "Ship to City, St")
+gui.F_Ship.ggcShip.SetColumnProperty("ShipGrid", "SHIPCITYST", "ReadOnly", True)
+
+gui.F_Ship.ggcShip.SetColumnProperty("ShipGrid", "Class", "ReadOnly", False)
+gui.F_Ship.ggcShip.SetColumnProperty("ShipGrid", "Class", "Width", 30)
+
+gui.F_Ship.ggcShip.SetColumnProperty("ShipGrid", "Late", "Width", 30)
+gui.F_Ship.ggcShip.SetColumnProperty("ShipGrid", "Late", "ReadOnly", True)
+
+gui.F_Ship.ggcShip.SetColumnProperty("ShipGrid", "Today", "Width", 40)
+gui.F_Ship.ggcShip.SetColumnProperty("ShipGrid", "Today", "ReadOnly", True)
+
+gui.F_Ship.ggcShip.SetColumnProperty("ShipGrid", V.Local.sD1, "Width", 48)
+gui.F_Ship.ggcShip.SetColumnProperty("ShipGrid", V.Local.sD1, "ReadOnly", True)
+
+gui.F_Ship.ggcShip.SetColumnProperty("ShipGrid", V.Local.sD2, "Width", 48)
+gui.F_Ship.ggcShip.SetColumnProperty("ShipGrid", V.Local.sD2, "ReadOnly", True)
+
+gui.F_Ship.ggcShip.SetColumnProperty("ShipGrid", V.Local.sD3, "Width", 48)
+gui.F_Ship.ggcShip.SetColumnProperty("ShipGrid", V.Local.sD3, "ReadOnly", True)
+
+gui.F_Ship.ggcShip.SetColumnProperty("ShipGrid", "Later", "Width", 25)
+gui.F_Ship.ggcShip.SetColumnProperty("ShipGrid", "Later", "ReadOnly", True)
+
+gui.F_Ship.ggcShip.SetColumnProperty("ShipGrid", "ESD", "Width", 50)
+gui.F_Ship.ggcShip.SetColumnProperty("ShipGrid", "ESD", "ReadOnly", True)
+gui.F_Ship.ggcShip.SetColumnProperty("ShipGrid", "ESD", "DisplayCustomDatetime", "d")
+
+gui.F_Ship.ggcShip.SetColumnProperty("ShipGrid", "User_2", "Width", 20)
+gui.F_Ship.ggcShip.SetColumnProperty("ShipGrid", "User_2", "Caption", "$")
+gui.F_Ship.ggcShip.SetColumnProperty("ShipGrid", "User_2", "ReadOnly", True)
+
+gui.F_Ship.ggcShip.SetColumnProperty("ShipGrid", "PD", "ReadOnly", True)
+gui.F_Ship.ggcShip.SetColumnProperty("ShipGrid", "PD", "Width", 50)
+gui.F_Ship.ggcShip.SetColumnProperty("ShipGrid", "PD", "DisplayCustomDatetime", "d")
+
+gui.F_Ship.ggcShip.SetColumnProperty("ShipGrid", "O/H", "Width", 30)
+gui.F_Ship.ggcShip.SetColumnProperty("ShipGrid", "O/H", "ReadOnly", True)
+gui.F_Ship.ggcShip.SetColumnProperty("ShipGrid", "O/H", "AllowEdit", False)
+gui.F_Ship.ggcShip.SetColumnProperty("ShipGrid", "O/H", "CellForeColor", V.Color.Blue)
+gui.F_Ship.ggcShip.SetColumnProperty("ShipGrid", "O/H", "CellFontUnderline", True)
+Gui.F_Ship.ggcShip.SetColumnProperty("ShipGrid", "O/H", "CellHAlignment", "Far")
+
+gui.F_Ship.ggcShip.SetColumnProperty("ShipGrid", "Notes", "Width", 150)
+gui.F_Ship.ggcShip.SetColumnProperty("ShipGrid", "Notes", "ReadOnly", True)
+
+'gui.F_Ship.ggcShip.SetColumnProperty("ShipGrid", "Days Overdue", "ReadOnly", True)
+'gui.F_Ship.ggcShip.SetColumnProperty("ShipGrid", "Days Overdue", "Width", )
+'
+'gui.F_Ship.ggcShip.SetColumnProperty("ShipGrid", "Name_Customer_Ship", "VisibleIndex", 0)
+'gui.F_Ship.ggcShip.SetColumnProperty("ShipGrid", "Part", "VisibleIndex", 1)
+'gui.F_Ship.ggcShip.SetColumnProperty("ShipGrid", "Description", "VisibleIndex", 2)
+'gui.F_Ship.ggcShip.SetColumnProperty("ShipGrid", "PRODUCT_LINE", "VisibleIndex", 3)
+'gui.F_Ship.ggcShip.SetColumnProperty("ShipGrid", "LOCATION", "VisibleIndex", 4)
+'gui.F_Ship.ggcShip.SetColumnProperty("ShipGrid", "Customer_PO", "VisibleIndex", 5)
+'gui.F_Ship.ggcShip.SetColumnProperty("ShipGrid", "Order_NO", "VisibleIndex", 6)
+'gui.F_Ship.ggcShip.SetColumnProperty("ShipGrid", "Record_NO", "VisibleIndex",7)
+'gui.F_Ship.ggcShip.SetColumnProperty("ShipGrid", "SHIPCITYST", "VisibleIndex", 8)
+'gui.F_Ship.ggcShip.SetColumnProperty("ShipGrid", "User_1", "VisibleIndex", 9)
+'gui.F_Ship.ggcShip.SetColumnProperty("ShipGrid", "Prior", "VisibleIndex", 10)
+'gui.F_Ship.ggcShip.SetColumnProperty("ShipGrid", "Today", "VisibleIndex", 11)
+'gui.F_Ship.ggcShip.SetColumnProperty("ShipGrid", V.Local.sD1, "VisibleIndex", 12)
+'gui.F_Ship.ggcShip.SetColumnProperty("ShipGrid", V.Local.sD2, "VisibleIndex", 13)
+'gui.F_Ship.ggcShip.SetColumnProperty("ShipGrid", V.Local.sD3, "VisibleIndex", 14)
+'gui.F_Ship.ggcShip.SetColumnProperty("ShipGrid", "After", "VisibleIndex", 15)
+'gui.F_Ship.ggcShip.SetColumnProperty("ShipGrid", "EstDate", "VisibleIndex", 16)
+'gui.F_Ship.ggcShip.SetColumnProperty("ShipGrid", "User_3", "VisibleIndex", 17)
+'gui.F_Ship.ggcShip.SetColumnProperty("ShipGrid", "DATE_ITEM_PROM", "VisibleIndex", 18)
+'gui.F_Ship.ggcShip.SetColumnProperty("ShipGrid", "User_2", "VisibleIndex", 20)
+'gui.F_Ship.ggcShip.SetColumnProperty("ShipGrid", "Late", "VisibleIndex", 21)
+'
+'gui.F_Ship.ggcShip.SetColumnProperty("ShipGrid", "CUSTOMER", "Visible", False)
+'gui.F_Ship.ggcShip.SetColumnProperty("ShipGrid", "Customer_Part", "Visible", False)
+'gui.F_Ship.ggcShip.SetColumnProperty("ShipGrid", "WEIGHT", "Visible", False)
+'gui.F_Ship.ggcShip.SetColumnProperty("ShipGrid", "SHIP_ID", "Visible", False)
+'gui.F_Ship.ggcShip.SetColumnProperty("ShipGrid", "PALLETS", "Visible", False)
+'gui.F_Ship.ggcShip.SetColumnProperty("ShipGrid", "FLAG_USE_MQD", "Visible", False)
+'gui.F_Ship.ggcShip.SetColumnProperty("ShipGrid", "QTY_BO", "Visible", False)
+gui.F_Ship.ggcShip.SetColumnProperty("ShipGrid", "LOCATION", "Visible", False)
+gui.F_Ship.ggcShip.SetColumnProperty("ShipGrid", "ORDLN", "Visible", False)
+gui.F_Ship.ggcShip.SetColumnProperty("ShipGrid", "Days Overdue", "Visible", False)
+'gui.F_Ship.ggcShip.SetColumnProperty("ShipGrid", "Later", "Visible", False)
+'gui.F_Ship.ggcShip.SetColumnProperty("ShipGrid", "Date_Due", "Visible", False)
+'gui.F_Ship.ggcShip.SetColumnProperty("ShipGrid", "QTY_SCHED", "Visible", False)
+'gui.F_Ship.ggcShip.SetColumnProperty("ShipGrid", "FINALQTY", "Visible", False)
+'gui.F_Ship.ggcShip.SetColumnProperty("ShipGrid", "REALDATE", "Visible", False)
+'gui.F_Ship.ggcShip.SetColumnProperty("ShipGrid", "FINALDATE", "Visible", False)
+'gui.F_Ship.ggcShip.SetColumnProperty("ShipGrid", "Difference", "Visible", False)
+
+gui.F_Ship.ggcShip.Anchor(15)
+Gui.F_Ship.cmdExcel.Anchor(10)
+Gui.F_Ship.cmdOpenOf.Anchor(10)
+Gui.F_Ship.cmdRefresh.Anchor(10)
+Gui.F_Ship.optEdit.Anchor(10)
+Gui.F_Ship.optShip.Anchor(10)
+Gui.F_Ship.optView.Anchor(10)
+
+''Setting the row color to gray if they have a value in the Prior column
+'F.Intrinsic.Control.For(V.Local.iCount, 0, V.DataTable.uData.RowCount--, 1)
+'	F.Intrinsic.Control.If(V.DataTable.uData(V.Local.iCount).Prior!FieldValFloat, >, 0)
+'		Gui.F_Ship.ggcShip.SetRowAppearance("ShipGrid", V.Local.iCount, "backcolor", V.Color.LtGray)
+'	F.Intrinsic.Control.EndIf
+'F.Intrinsic.Control.Next(V.Local.iCount)
+
+gui.F_Ship.ggcShip.MainView("ShipGrid")
+
+F.Intrinsic.Control.CallSub(optview_click)
+
+Gui.F_Ship..Show
+
+Gui.F_Ship.timer.Interval(600000)
+Gui.F_Ship.timer.Enabled(true)
+
+F.Intrinsic.Control.ExitSub
+
+F.Intrinsic.Control.Label("Recreate_Err")
+F.Intrinsic.Control.If(V.Ambient.ErrorNumber,<>,0)
+	Function.Intrinsic.String.Concat("Project: GCG_4222_OE_SiscoDash.g2u.g2c",V.Ambient.Newline,V.Ambient.Newline,"Subroutine: ",V.Ambient.CurrentSubroutine,V.Ambient.NewLine,"Error Occurred ",V.Ambient.ErrorNumber," with description ",V.Ambient.ErrorDescription,V.Local.sError)
+	F.Intrinsic.UI.Msgbox(V.Local.sError)
+	F.Intrinsic.Control.CallSub(f_ship_unload)
+Function.Intrinsic.Control.EndIf
+Program.Sub.Recreate.End
+
+Program.Sub.optView_Click.Start
+F.Intrinsic.Control.SetErrorHandler("optView_Click_Err")
+F.Intrinsic.Control.ClearErrors
+
+V.Local.sError.Declare(String)
+
+'Setting column values depending on what mode they are on as they change it.
+F.Intrinsic.Control.If(V.Screen.F_Ship!optView.Value, =, True)
+	gui.F_Ship.ggcShip.SetColumnProperty("ShipGrid", "ESD", "ReadOnly", True)
+	gui.F_Ship.ggcShip.SetColumnProperty("ShipGrid", "Notes", "ReadOnly", True)
+	gui.F_Ship.ggcShip.SetColumnProperty("ShipGrid", "User_2", "ReadOnly", True)
+F.Intrinsic.Control.ElseIf(V.Screen.F_Ship!optEdit.Value, =, True)
+	gui.F_Ship.ggcShip.SetColumnProperty("ShipGrid", "ESD", "ReadOnly", False)
+	gui.F_Ship.ggcShip.SetColumnProperty("ShipGrid", "Notes", "ReadOnly", False)
+	gui.F_Ship.ggcShip.SetColumnProperty("ShipGrid", "User_2", "ReadOnly", False)
+F.Intrinsic.Control.ElseIf(V.Screen.F_Ship!optShip.Value, =, True)
+	gui.F_Ship.ggcShip.SetColumnProperty("ShipGrid", "ESD", "ReadOnly", False)
+	gui.F_Ship.ggcShip.SetColumnProperty("ShipGrid", "Notes", "ReadOnly", False)
+	gui.F_Ship.ggcShip.SetColumnProperty("ShipGrid", "User_2", "ReadOnly", False)	
+F.Intrinsic.Control.EndIf
+
+F.Intrinsic.Control.ExitSub
+
+F.Intrinsic.Control.Label("optView_Click_Err")
+F.Intrinsic.Control.If(V.Ambient.ErrorNumber,<>,0)
+	Function.Intrinsic.String.Concat("Project: GCG_4222_OE_SiscoDash.g2u.g2c",V.Ambient.Newline,V.Ambient.Newline,"Subroutine: ",V.Ambient.CurrentSubroutine,V.Ambient.NewLine,"Error Occurred ",V.Ambient.ErrorNumber," with description ",V.Ambient.ErrorDescription,V.Local.sError)
+	F.Intrinsic.UI.Msgbox(V.Local.sError)
+	F.Intrinsic.Control.CallSub(f_ship_unload)
+Function.Intrinsic.Control.EndIf
+Program.Sub.optView_Click.End
+
+Program.Sub.ggcShip_CellValueChanged.Start
+F.Intrinsic.Control.SetErrorHandler("ggcShip_CellValueChanged_Err")
+F.Intrinsic.Control.ClearErrors
+
+V.Local.sError.Declare(String)
+
+V.Local.sColumn.Declare(String)
+V.Local.sValue.Declare(String)
+V.Local.sRow.Declare(String)
+V.Local.sOrder.Declare(String)
+V.Local.sLn.Declare(String)
+V.Local.sSql.Declare(String)
+V.Local.bFlag.Declare(Boolean)
+
+V.Local.sColumn.Set(V.Args.Column)
+V.Local.sValue.Set(V.Args.Value)
+V.Local.sRow.Set(V.Args.RowIndex)
+V.Local.sOrder.Set(V.DataTable.FINAL(V.Local.sRow.Long).ORDER_NO!FieldValTrim)
+V.Local.sLn.Set(V.DataTable.FINAL(V.Local.sRow.Long).Record_NO!FieldValTrim)
+
+'We are saving information directly into the table directly when the user changes data on the table
+F.Intrinsic.Control.SelectCase(V.Local.sColumn)
+F.Intrinsic.Control.Case("Notes")
+	F.Intrinsic.String.Build("{0}0",V.Local.sLn, V.Local.sLn) 
+	Function.Intrinsic.String.Build("Update ORDER_LINES set User_3 = '{0}' where ORDER_NO = '{1}' and RECORD_NO = '{2}'", V.Local.sValue.Trim, V.Local.sOrder, V.Local.sLn, v.Local.sSql)
+	F.ODBC.Connection!con.Execute(V.Local.sSql)
+F.Intrinsic.Control.Case("User_2")
+	F.Intrinsic.String.Build("{0}0",V.Local.sLn, V.Local.sLn) 
+	Function.Intrinsic.String.Build("Update ORDER_LINES set User_2 = '{0}' where ORDER_NO = '{1}' and RECORD_NO = '{2}'", V.Local.sValue.Trim, V.Local.sOrder, V.Local.sLn, v.Local.sSql)
+	F.ODBC.Connection!con.Execute(V.Local.sSql)
+F.Intrinsic.Control.Case("Class")
+	F.Intrinsic.String.Build("{0}0",V.Local.sLn, V.Local.sLn) 
+	Function.Intrinsic.String.Build("Update ORDER_LINES set User_1 = '{0}' where ORDER_NO = '{1}' and RECORD_NO = '{2}'", V.Local.sValue.Trim, V.Local.sOrder, V.Local.sLn, v.Local.sSql)
+	F.ODBC.Connection!con.Execute(V.Local.sSql)	
+F.Intrinsic.Control.Case("ESD")
+	F.Intrinsic.Date.IsDate(V.Local.sValue.Trim, V.Local.bFlag)
+	F.Intrinsic.Control.If(V.Local.bFlag, =, True)
+		Function.Intrinsic.String.Build("Select * from GCG_4222_OE_ESD where ORDER_NO = '{0}' and LINE = '{1}'", V.Local.sOrder, V.Local.sLn, V.Local.sSql)
+		F.ODBC.Connection!con.OpenLocalRecordsetRW("rst", V.Local.sSql)
+		F.Intrinsic.Control.If(V.ODBC.con!rst.EOF, =, True)
+			F.ODBC.con!rst.AddNew
+			F.ODBC.con!rst.Set!ORDER_NO(V.Local.sOrder)
+			F.ODBC.con!rst.Set!LINE(V.Local.sLn)
+		F.Intrinsic.Control.EndIf
+		F.ODBC.con!rst.Set!ESD(V.Local.sValue.DateComp)
+		F.ODBC.con!rst.Update
+		F.ODBC.con!rst.Close
+	F.Intrinsic.Control.Else
+		F.Intrinsic.UI.Msgbox("Please enter a valid date.","Invalid Date Entry")
+		F.Data.DataTable.SetValue("FINAL", V.Local.sRow.Long, "ESD", "1/1/2900")
+	F.Intrinsic.Control.EndIf
+Function.Intrinsic.Control.EndSelect
+
+F.Intrinsic.Control.ExitSub
+
+F.Intrinsic.Control.Label("ggcShip_CellValueChanged_Err")
+F.Intrinsic.Control.If(V.Ambient.ErrorNumber,<>,0)
+	Function.Intrinsic.String.Concat("Project: GCG_4222_OE_SiscoDash.g2u.g2c",V.Ambient.Newline,V.Ambient.Newline,"Subroutine: ",V.Ambient.CurrentSubroutine,V.Ambient.NewLine,"Error Occurred ",V.Ambient.ErrorNumber," with description ",V.Ambient.ErrorDescription,V.Local.sError)
+	F.Intrinsic.UI.Msgbox(V.Local.sError)
+	F.Intrinsic.Control.CallSub(f_ship_unload)
+Function.Intrinsic.Control.EndIf
+Program.Sub.ggcShip_CellValueChanged.End
+
+Program.Sub.timer_Timer.Start
+F.Intrinsic.Control.SetErrorHandler("timer_Timer_Err")
+F.Intrinsic.Control.ClearErrors
+
+V.Local.sError.Declare(String)
+
+Gui.F_Ship.timer.Enabled(False)
+F.Intrinsic.Control.CallSub(recreate)
+
+F.Intrinsic.Control.ExitSub
+
+F.Intrinsic.Control.Label("timer_Timer_Err")
+F.Intrinsic.Control.If(V.Ambient.ErrorNumber,<>,0)
+	Function.Intrinsic.String.Concat("Project: GCG_4222_OE_SiscoDash.g2u.g2c",V.Ambient.Newline,V.Ambient.Newline,"Subroutine: ",V.Ambient.CurrentSubroutine,V.Ambient.NewLine,"Error Occurred ",V.Ambient.ErrorNumber," with description ",V.Ambient.ErrorDescription,V.Local.sError)
+	F.Intrinsic.UI.Msgbox(V.Local.sError)
+	F.Intrinsic.Control.CallSub(f_ship_unload)
+Function.Intrinsic.Control.EndIf
+Program.Sub.timer_Timer.End
+
+Program.Sub.cmdExcel_Click.Start
+F.Intrinsic.Control.SetErrorHandler("cmdExcel_Click_Err")
+F.Intrinsic.Control.ClearErrors
+
+V.Local.sError.Declare(String)
+
+V.Local.sDir.Declare(String)
+V.Local.sFile.Declare(String)
+V.Local.bFlag.Declare(Boolean)
+
+Gui.F_Ship.timer.Enabled(False)
+Gui.F_Ship..Visible(False)
+
+F.Automation.MSExcel.CheckPresence(V.Local.bFlag)
+F.Intrinsic.Control.If(V.Local.bFlag, =, False)
+	F.Intrinsic.UI.Msgbox("Microsoft Excel not found", "Excel Error")
+	Gui.F_Ship.timer.Interval(600000)
+	Gui.F_Ship.timer.Enabled(True)
+	Gui.F_Ship..Show
+	F.Intrinsic.Control.ExitSub	
+F.Intrinsic.Control.EndIf
+
+'we have to create a table from a view from the original table to use to export
+F.Intrinsic.String.Split(V.Ambient.Date, " ", V.Local.sDir)
+F.Intrinsic.String.Replace(V.Local.sDir(0), "/", "", V.Local.sDir)
+F.Intrinsic.String.Build("{0}\ShippingReview{1}.xlsx", V.Caller.FilesDir, V.Local.sDir, V.Local.sDir)
+
+F.Data.DataView.Create("FINAL", "uDataView")
+F.Data.DataView.ToDataTable("FINAL", "uDataView", "uExport")
+
+'Deleting additional columns
+F.Data.DataTable.RemoveColumn("uExport", "ORDLN")
+
+F.Data.DataView.Create("uExport", "uExportView")
+F.Data.DataView.ToString("uExport", "uExportView", "*!*", "$!$", V.Local.sFile)
+
+F.Automation.MSExcel.WriteSpreadsheet(V.Local.sDir, V.Local.sFile)
+
+F.Intrinsic.String.Build("File has been created in directory {0} ", V.Local.sDir, V.Local.sDir)
+F.Intrinsic.UI.Msgbox(V.Local.sDir, "Excel export complete")
+
+F.Intrinsic.Control.CallSub(f_ship_unload)
+
+F.Intrinsic.Control.ExitSub
+
+F.Intrinsic.Control.Label("cmdExcel_Click_Err")
+F.Intrinsic.Control.If(V.Ambient.ErrorNumber,<>,0)
+	Function.Intrinsic.String.Concat("Project: GCG_4222_OE_SiscoDash.g2u.g2c",V.Ambient.Newline,V.Ambient.Newline,"Subroutine: ",V.Ambient.CurrentSubroutine,V.Ambient.NewLine,"Error Occurred ",V.Ambient.ErrorNumber," with description ",V.Ambient.ErrorDescription,V.Local.sError)
+	F.Intrinsic.UI.Msgbox(V.Local.sError)
+	F.Intrinsic.Control.CallSub(f_ship_unload)
+Function.Intrinsic.Control.EndIf
+Program.Sub.cmdExcel_Click.End
+
+Program.Sub.cmdOpenOf_Click.Start
+F.Intrinsic.Control.SetErrorHandler("cmdOpenOf_Click_Err")
+F.Intrinsic.Control.ClearErrors
+
+V.Local.sError.Declare(String)
+
+V.Local.sDir.Declare(String)
+V.Local.sFile.Declare(String)
+V.Local.bFlag.Declare(Boolean)
+
+Gui.F_Ship.timer.Enabled(False)
+Gui.F_Ship..Visible(False)
+
+F.Automation.OOGeneral.CheckPresence(V.Local.bFlag)
+F.Intrinsic.Control.If(V.Local.bFlag, =, False)
+	F.Intrinsic.UI.Msgbox("Open Office Calc not found", "Open Office Error")
+	Gui.F_Ship.timer.Interval(600000)
+	Gui.F_Ship.timer.Enabled(True)
+	Gui.F_Ship..Show
+	F.Intrinsic.Control.ExitSub	
+F.Intrinsic.Control.EndIf
+
+'we have to create a table from a view from the original table to use to export
+F.Intrinsic.String.Split(V.Ambient.Date, " ", V.Local.sDir)
+F.Intrinsic.String.Replace(V.Local.sDir(0), "/", "", V.Local.sDir)
+F.Intrinsic.String.Build("{0}\ShippingReview{1}.xlsx", V.Caller.FilesDir, V.Local.sDir, V.Local.sDir)
+
+F.Data.DataView.Create("FINAL", "uDataView")
+F.Data.DataView.ToDataTable("FINAL", "uDataView", "uExport")
+
+'Deleting additional columns
+F.Data.DataTable.RemoveColumn("uExport", "ORDLN")
+
+F.Data.DataView.Create("uExport", "uExportView")
+F.Data.DataView.ToString("uExport", "uExportView", "*!*", "$!$", V.Local.sFile)
+
+F.Automation.OOCalc.WriteSpreadsheet(V.Local.sDir, False, V.Local.sFile)
+
+F.Intrinsic.String.Build("File has been created in directory {0} ", V.Local.sDir, V.Local.sDir)
+F.Intrinsic.UI.Msgbox(V.Local.sDir, "Calc export complete")
+
+F.Intrinsic.Control.CallSub(f_ship_unload)
+
+F.Intrinsic.Control.ExitSub
+
+F.Intrinsic.Control.Label("cmdOpenOf_Click_Err")
+F.Intrinsic.Control.If(V.Ambient.ErrorNumber,<>,0)
+	Function.Intrinsic.String.Concat("Project: GCG_4222_OE_SiscoDash.g2u.g2c",V.Ambient.Newline,V.Ambient.Newline,"Subroutine: ",V.Ambient.CurrentSubroutine,V.Ambient.NewLine,"Error Occurred ",V.Ambient.ErrorNumber," with description ",V.Ambient.ErrorDescription,V.Local.sError)
+	F.Intrinsic.UI.Msgbox(V.Local.sError)
+	F.Intrinsic.Control.CallSub(f_ship_unload)
+Function.Intrinsic.Control.EndIf
+Program.Sub.cmdOpenOf_Click.End
+
+Program.Sub.F_Ship_UnLoad.Start
+F.Intrinsic.Control.SetErrorHandler("F_Ship_UnLoad_Err")
+F.Intrinsic.Control.ClearErrors
+
+V.Local.sError.Declare(String)
+
+F.ODBC.Connection!con.Close
+F.Intrinsic.Control.End
+
+F.Intrinsic.Control.ExitSub
+
+F.Intrinsic.Control.Label("F_Ship_UnLoad_Err")
+F.Intrinsic.Control.If(V.Ambient.ErrorNumber,<>,0)
+	Function.Intrinsic.String.Concat("Project: GCG_4222_OE_SiscoDash.g2u.g2c",V.Ambient.Newline,V.Ambient.Newline,"Subroutine: ",V.Ambient.CurrentSubroutine,V.Ambient.NewLine,"Error Occurred ",V.Ambient.ErrorNumber," with description ",V.Ambient.ErrorDescription,V.Local.sError)
+	F.Intrinsic.UI.Msgbox(V.Local.sError)
+Function.Intrinsic.Control.EndIf
+Program.Sub.F_Ship_UnLoad.End
+
+Program.Sub.ggcShip_RowCellClick.Start
+F.Intrinsic.Control.SetErrorHandler("ggcShip_RowCellClick_Err")
+F.Intrinsic.Control.ClearErrors
+
+V.Local.sError.Declare(String)
+
+V.Local.sColumn.Declare(String)
+V.Local.sPart.Declare(String)
+V.Local.sLoc.Declare(String)
+V.Local.sDesc.Declare(String)
+V.Local.sOrder.Declare(String)
+V.Local.sFilter.Declare(String)
+V.Local.iRow.Declare(Long)
+
+V.Local.sColumn.Set(V.Args.Column)
+
+F.Intrinsic.Control.SelectCase(V.Local.sColumn.Trim)
+F.Intrinsic.Control.Case("O/H")
+	Gui.F_Ship.timer.Enabled(False)
+	Gui.F_Ship..Visible(False)
+	
+	'This will use a view with a filter of the table we have created from the quantity avaiable to ship table
+	V.Local.iRow.Set(V.Args.RowIndex)
+	V.Local.sPart.Set(V.DataTable.FINAL(V.Local.iRow).Part!FieldValTrim)
+	V.Local.sLoc.Set(V.DataTable.FINAL(V.Local.iRow).Location!FieldValTrim)
+	V.Local.sDesc.Set(V.DataTable.FINAL(V.Local.iRow).Description!FieldValTrim)
+	V.Local.sOrder.Set(V.DataTable.FINAL(V.Local.iRow).Order_NO!FieldValTrim)
+	Gui.F_Part.txtPart.Text(V.Local.sPart.Trim)
+	Gui.F_Part.txtLoc.Text(V.Local.sLoc.Trim)
+	Gui.F_Part.txtDesc.Text(V.Local.sDesc.Trim)
+	F.Intrinsic.String.Build("Order: {0}", V.Local.sOrder, V.Local.sOrder)
+	Gui.F_Part.lblOrder.Text(V.Local.sOrder)
+	
+	F.Intrinsic.String.Build("Part = '{0}' AND Location = '{1}'", V.Local.sPart.Trim, V.Local.sLoc.Trim, V.Local.sFilter)
+	
+	F.Data.DataView.Create("uParts", "uFilter", 2, V.Local.sFilter, "Lot ASC, Heat ASC, Bin ASC")
+	
+	Gui.F_Part.ggcPart.AddGridviewFromDataview("PartsGrid", "uParts", "uFilter")
+	gui.F_Part.ggcPart.SetColumnProperty("PartsGrid", "Lot", "VisibleIndex", 1)
+	gui.F_Part.ggcPart.SetColumnProperty("PartsGrid", "Lot", "ReadOnly", True)
+
+	gui.F_Part.ggcPart.SetColumnProperty("PartsGrid", "Heat", "VisibleIndex", 2)
+	gui.F_Part.ggcPart.SetColumnProperty("PartsGrid", "Heat", "ReadOnly", True)
+
+	gui.F_Part.ggcPart.SetColumnProperty("PartsGrid", "Bin", "VisibleIndex", 3)
+	gui.F_Part.ggcPart.SetColumnProperty("PartsGrid", "Bin", "ReadOnly", True)
+
+	gui.F_Part.ggcPart.SetColumnProperty("PartsGrid", "Serial Number", "VisibleIndex", 4)
+	gui.F_Part.ggcPart.SetColumnProperty("PartsGrid", "Serial Number", "ReadOnly", True)
+
+	gui.F_Part.ggcPart.SetColumnProperty("PartsGrid", "Quantity", "VisibleIndex", 5)
+	gui.F_Part.ggcPart.SetColumnProperty("PartsGrid", "Quantity", "ReadOnly", True)
+
+	gui.F_Part.ggcPart.SetColumnProperty("PartsGrid", "Qty Available to Ship", "VisibleIndex", 6)
+	gui.F_Part.ggcPart.SetColumnProperty("PartsGrid", "Qty Available to Ship", "ReadOnly", True)
+
+	gui.F_Part.ggcPart.SetColumnProperty("PartsGrid", "Part", "Visible", False)
+	gui.F_Part.ggcPart.SetColumnProperty("PartsGrid", "Location", "Visible", False)
+
+	gui.F_Part.ggcPart.MainView("PartsGrid")
+	
+	gui.F_Part.ggcPart.Anchor(15)
+	Gui.F_Part..Show
+
+F.Intrinsic.Control.Case("Order_NO")
+	'This column will call a module of globalshop depending on what mode they are using for the grid.
+	V.Local.sOrder.Set(V.Args.CellValue)
+	F.Intrinsic.Control.If(V.Screen.F_Ship!optShip.Value, =, True)
+		F.Global.General.CallWrapperSync(4010, V.Local.sOrder)
+	F.Intrinsic.Control.ElseIf(V.Screen.F_Ship!optEdit.Value, =, True)
+		F.Intrinsic.String.Build("{0}!*!O!*!*!*ZDR*!*", V.Local.sOrder, V.Local.sFilter)
+		F.Global.General.CallWrapperAsync(200000, V.Local.sFilter)
+	F.Intrinsic.Control.Else
+		F.Intrinsic.String.Build("{0}!*!V!*!*!*ZDR*!*", V.Local.sOrder, V.Local.sFilter)
+		F.Global.General.CallWrapperAsync(200000, V.Local.sFilter)
+	F.Intrinsic.Control.EndIf
+F.Intrinsic.Control.EndSelect
+
+F.Intrinsic.Control.ExitSub
+
+F.Intrinsic.Control.Label("ggcShip_RowCellClick_Err")
+F.Intrinsic.Control.If(V.Ambient.ErrorNumber,<>,0)
+	Function.Intrinsic.String.Concat("Project: GCG_4222_OE_SiscoDash.g2u.g2c",V.Ambient.Newline,V.Ambient.Newline,"Subroutine: ",V.Ambient.CurrentSubroutine,V.Ambient.NewLine,"Error Occurred ",V.Ambient.ErrorNumber," with description ",V.Ambient.ErrorDescription,V.Local.sError)
+	F.Intrinsic.UI.Msgbox(V.Local.sError)
+	F.Intrinsic.Control.CallSub(f_ship_unload)
+Function.Intrinsic.Control.EndIf
+Program.Sub.ggcShip_RowCellClick.End
+
+Program.Sub.F_Part_UnLoad.Start
+F.Intrinsic.Control.SetErrorHandler("F_Part_UnLoad_Err")
+F.Intrinsic.Control.ClearErrors
+
+V.Local.sError.Declare(String)
+
+Gui.F_Part..Visible(False)
+F.Data.DataView.Close("uParts", "uFilter")
+
+Gui.F_Part.txtPart.Text("")
+Gui.F_Part.txtLoc.Text("")
+Gui.F_Part.txtDesc.Text("")
+Gui.F_Part.lblOrder.Text("Order: ")
+
+Gui.F_Ship..Show
+Gui.F_Ship.timer.Interval(600000)
+Gui.F_Ship.timer.Enabled(True)
+
+F.Intrinsic.Control.ExitSub
+
+F.Intrinsic.Control.Label("F_Part_UnLoad_Err")
+F.Intrinsic.Control.If(V.Ambient.ErrorNumber,<>,0)
+	Function.Intrinsic.String.Concat("Project: GCG_4222_OE_SiscoDash.g2u.g2c",V.Ambient.Newline,V.Ambient.Newline,"Subroutine: ",V.Ambient.CurrentSubroutine,V.Ambient.NewLine,"Error Occurred ",V.Ambient.ErrorNumber," with description ",V.Ambient.ErrorDescription,V.Local.sError)
+	F.Intrinsic.UI.Msgbox(V.Local.sError)
+	F.Intrinsic.Control.CallSub(f_ship_unload)
+Function.Intrinsic.Control.EndIf
+Program.Sub.F_Part_UnLoad.End
+
+Program.Sub.Comments.Start
+${$0$}$Shipment dashboard edit$}$SISCO$}$1/12/2017 3:18:17 PM$}$False
+${$3$}$0$}$$}$0$}$-1$}$$}$12:00:00 AM$}$This project will run from a custom menu item.
+Program.Sub.Comments.End
