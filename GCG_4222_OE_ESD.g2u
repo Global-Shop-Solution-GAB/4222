@@ -1,0 +1,489 @@
+Program.Sub.ScreenSU.Start
+Gui.Form..Create
+Gui.Form..Caption("ESD")
+Gui.Form..Size(2610,2235)
+Gui.Form..MinX(0)
+Gui.Form..MinY(0)
+Gui.Form..Position(0,0)
+Gui.Form..BackColor(-2147483633)
+Gui.Form..MaxButton(False)
+Gui.Form..MinButton(False)
+Gui.Form..MousePointer(0)
+Gui.Form..Sizeable(False)
+Gui.Form..Event(UnLoad,Form_UnLoad)
+Gui.Form.dtpESD.Create(DatePicker)
+Gui.Form.dtpESD.Size(1935,285)
+Gui.Form.dtpESD.Position(195,510)
+Gui.Form.lbl1.Create(Label,"Estimated Shipping Date",True,2160,255,0,165,240,True,0,"Arial",8,-2147483633,0)
+Gui.Form.cmdSave.Create(Button)
+Gui.Form.cmdSave.Size(855,375)
+Gui.Form.cmdSave.Position(225,1035)
+Gui.Form.cmdSave.Caption("Save")
+Gui.Form.cmdSave.Event(Click,cmdSave_Click)
+Program.Sub.ScreenSU.End
+
+Program.Sub.Preflight.Start
+Program.Sub.Preflight.End
+
+Program.Sub.Main.Start
+F.Intrinsic.Control.SetErrorHandler("Main_Err")
+F.Intrinsic.Control.ClearErrors
+
+'Modifying code so that the only way to add an ESD to a order/line to the custom GCG_422_OE_ESD table is when you enter/modify the Promise date on the order lines screen.
+
+V.Local.sError.Declare(String)
+v.Local.spromdate.Declare(string)
+V.Local.sord.Declare(String)
+V.Local.sline.Declare(String)
+v.Local.ssql.Declare(string)
+v.Local.dpromdate.Declare(date)
+v.Local.syear.Declare(string)
+v.Local.smmdd.Declare(string)
+
+F.ODBC.Connection!Conx.OpenConnection(V.Ambient.PDSN,V.Ambient.PUser,V.Ambient.PPass,120)
+
+'The user would like to only be able to modify the ESD after they have added a Promise date to a line
+F.Intrinsic.Control.If(V.Caller.Hook, =, "12221")
+	F.Intrinsic.Control.CallSub(populate)
+F.Intrinsic.Control.EndIf
+
+'check to see if the populate hooks on the order lines screen fire
+F.Intrinsic.Control.If(V.Caller.Hook,=,"12705")
+	'set the user labels
+	v.Passed.000078.Set("Class")
+	v.Passed.000088.Set("$")
+	v.Passed.000089.Set("Notes")
+	
+'	'check to see if the promise date is blank
+'	v.Local.spromdate.Set(v.Passed.000011)
+'	f.Intrinsic.Control.If(v.Local.spromdate,=,"00000000")
+'		'set the script 1 text
+'		v.Passed.000162.Set("ESD")
+'		f.Intrinsic.Control.CallSub(unload)
+'	f.Intrinsic.Control.EndIf
+'	'if not blank format the date
+'	f.Intrinsic.String.Right(v.Local.spromdate,4,v.Local.smmdd)
+'	f.Intrinsic.String.Left(v.Local.spromdate,4,v.Local.syear)
+'	f.Intrinsic.String.Build("{0}{1}",v.Local.smmdd,v.Local.syear,v.Local.spromdate)
+'	F.Intrinsic.Date.ConvertDString(V.Local.spromdate.Trim,"MM/DD/YYYY",V.Local.dpromdate)
+'	'set the local variables
+'	V.Local.sord.Set(V.Passed.000060)
+'	F.Intrinsic.String.LPad(V.Local.sord,"0",7,V.Local.sord)
+'	V.Local.sline.Set(V.Passed.000051)
+'	F.Intrinsic.String.LPad(V.Local.sline,"0",3,V.Local.sline)
+'	'update the promise date
+'	f.Intrinsic.String.Build("select * from GCG_4222_OE_ESD where ORDER_NO = '{0}' and LINE = '{1}'",V.Local.sord.Trim,V.Local.sline.Trim,V.Local.ssql)
+'	F.ODBC.Connection!conx.OpenRecordsetRW("rst",V.Local.ssql)
+'	F.intrinsic.Control.If(V.ODBC.conx!rst.EOF,<>,True)
+'		'set the promise date
+'		f.Intrinsic.Control.If(v.Local.spromdate,<>,"")
+'			F.ODBC.Conx!rst.Set!PROMDATE(V.Local.dpromdate.Trim)
+'			F.ODBC.Conx!rst.Set!ESD(V.Local.dpromdate.Trim)
+'		f.Intrinsic.Control.EndIf	
+'		F.ODBC.conx!rst.Update
+'	F.Intrinsic.Control.Else
+'		F.ODBC.conx!rst.AddNew
+'		F.ODBC.conx!rst.Set!ORDER_NO(V.Local.sord.Trim)
+'		F.ODBC.conx!rst.Set!LINE(V.Local.sline.Trim)
+'		'set the promise date
+'		f.Intrinsic.Control.If(v.Local.spromdate,<>,"")
+'			F.ODBC.Conx!rst.Set!PROMDATE(V.Local.dpromdate.Trim)
+'			F.ODBC.Conx!rst.Set!ESD(V.Local.dpromdate.Trim)		
+'		f.Intrinsic.Control.EndIf	
+'		F.ODBC.conx!rst.Update
+'	F.Intrinsic.Control.EndIf
+'	'set the script 1 text
+'	v.Passed.000162.Set("ESD")
+F.Intrinsic.Control.ElseIf(V.Caller.Hook,=,"12231")
+	'call the post save sub
+	F.Intrinsic.Control.CallSub(Postsave)
+'f.Intrinsic.Control.ElseIf(v.Caller.Hook,=,12410)
+'	F.Intrinsic.Control.CallSub(Populate)
+	
+'otherwise if being ran from header
+'f.Intrinsic.Control.ElseIf(v.Caller.Hook,=,11870)
+	'call the header save sub
+'	f.Intrinsic.Control.CallSub(headersave)	
+F.Intrinsic.Control.EndIf
+
+F.Intrinsic.Control.ExitSub
+
+F.Intrinsic.Control.Label("Main_Err")
+F.Intrinsic.Control.If(V.Ambient.ErrorNumber,<>,0)
+	Function.Intrinsic.String.Concat("Project: GCG_4222_OE_ESD.g2u",V.Ambient.Newline,V.Ambient.Newline,"Subroutine: ",V.Ambient.CurrentSubroutine,V.Ambient.NewLine,"Error Occurred ",V.Ambient.ErrorNumber," with description ",V.Ambient.ErrorDescription,V.Local.sError)
+	F.Intrinsic.UI.Msgbox(V.Local.sError)
+	F.Intrinsic.Control.CallSub(Unload)
+Function.Intrinsic.Control.EndIf
+
+Program.Sub.Main.End
+
+Program.Sub.Unload.Start
+F.Intrinsic.Control.SetErrorHandler("Unload_Err")
+F.Intrinsic.Control.ClearErrors
+
+V.Local.sError.Declare(String)
+
+F.ODBC.Connection!Conx.Close
+F.Intrinsic.Control.End
+
+F.Intrinsic.Control.ExitSub
+
+F.Intrinsic.Control.Label("Unload_Err")
+F.Intrinsic.Control.If(V.Ambient.ErrorNumber,<>,0)
+	Function.Intrinsic.String.Concat("Project: GCG_4222_OE_ESD.g2u",V.Ambient.Newline,V.Ambient.Newline,"Subroutine: ",V.Ambient.CurrentSubroutine,V.Ambient.NewLine,"Error Occurred ",V.Ambient.ErrorNumber," with description ",V.Ambient.ErrorDescription,V.Local.sError)
+	F.Intrinsic.UI.Msgbox(V.Local.sError)
+	F.Intrinsic.Control.End
+
+Function.Intrinsic.Control.EndIf
+
+Program.Sub.Unload.End
+
+Program.Sub.Populate.Start
+F.Intrinsic.Control.SetErrorHandler("Populate_Err")
+F.Intrinsic.Control.ClearErrors
+
+V.Local.sError.Declare(String)
+
+v.Local.sdate.Declare(string)
+v.Local.ddate.Declare(date)
+V.Local.sord.Declare(String)
+V.Local.sline.Declare(String)
+V.Local.sesd.Declare(String)
+V.Local.ssql.Declare(String)
+v.Local.desd.Declare(date)
+V.Local.sProm.Declare(String)
+V.Local.dProm.Declare(Date)
+V.Local.sYear.Declare(String)
+V.Local.sMMDD.Declare(String)
+
+'set the local variables
+V.Local.sord.Set(V.Passed.000060)
+F.Intrinsic.String.LPad(V.Local.sord,"0",7,V.Local.sord)
+V.Local.sline.Set(V.Passed.000051)
+F.Intrinsic.String.LPad(V.Local.sline,"0",3,V.Local.sline)
+V.Local.sProm.Set(V.Passed.000011)
+'F.Intrinsic.String.Format(V.Local.sProm, "MM/DD/YYYY", V.Local.dProm)
+
+f.Intrinsic.String.Left(v.Local.sProm,4,v.Local.syear)
+f.Intrinsic.String.Right(v.Local.sProm,4,v.Local.sMMDD)
+f.Intrinsic.String.Build("{0}{1}",v.Local.sMMDD,v.Local.syear,v.Local.sProm)
+F.Intrinsic.Date.ConvertDString(V.Local.sProm.Trim,"MM/DD/YYYY",V.Local.dProm)
+
+'query to see if there is already a date for that order/line
+F.Intrinsic.String.Build("select ESD from GCG_4222_OE_ESD where ORDER_NO = '{0}' and LINE = '{1}'",V.Local.sord.Trim,V.Local.sline.Trim,V.Local.ssql)
+f.ODBC.Connection!Conx.OpenRecordsetRO("rst",v.Local.ssql)
+F.intrinsic.Control.If(V.ODBC.conx!rst.EOF,<>,True)
+	v.Local.sesd.Set(v.ODBC.Conx!rst.FieldValTrim!ESD)
+	f.Intrinsic.Control.If(v.Local.sesd,<>,"")
+	f.Intrinsic.Control.AndIf(v.Local.sesd,<>,"01/01/1900")
+		f.Intrinsic.String.Format(v.Local.sesd,"MM/DD/YYYY",v.Local.desd)
+		gui.Form.dtpESD.Value(v.Local.desd)
+	f.Intrinsic.Control.Else
+		Gui.Form.dtpESD.Value(V.Local.dProm)
+	F.Intrinsic.Control.EndIf
+F.Intrinsic.Control.Else
+	Gui.Form.dtpESD.Value(V.Local.dProm)
+F.Intrinsic.Control.EndIf
+f.ODBC.Conx!rst.Close
+
+'make the form visible
+gui.Form..Visible(true)
+
+F.Intrinsic.Control.ExitSub
+
+F.Intrinsic.Control.Label("Populate_Err")
+F.Intrinsic.Control.If(V.Ambient.ErrorNumber,<>,0)
+	Function.Intrinsic.String.Concat("Project: GCG_4222_OE_ESD.g2u",V.Ambient.Newline,V.Ambient.Newline,"Subroutine: ",V.Ambient.CurrentSubroutine,V.Ambient.NewLine,"Error Occurred ",V.Ambient.ErrorNumber," with description ",V.Ambient.ErrorDescription,V.Local.sError)
+	F.Intrinsic.UI.Msgbox(V.Local.sError)
+	F.Intrinsic.Control.CallSub(Unload)
+Function.Intrinsic.Control.EndIf
+
+
+Program.Sub.Populate.End
+
+Program.Sub.PostSave.Start
+F.Intrinsic.Control.SetErrorHandler("PostSave_Err")
+F.Intrinsic.Control.ClearErrors
+
+v.Local.spromcheck.Declare(string)
+V.Local.sError.Declare(String)
+V.Local.sord.Declare(String)
+V.Local.sline.Declare(String)
+V.Local.sesd.Declare(String)
+V.Local.ssql.Declare(String)
+v.Local.spromdate.Declare(String)
+v.Local.dpromdate.Declare(date)
+v.Local.syear.Declare(string)
+v.Local.sMMDD.Declare(STring)
+
+'set the local variables
+V.Local.sord.Set(V.Passed.000060)
+F.Intrinsic.String.LPad(V.Local.sord,"0",7,V.Local.sord)
+V.Local.sline.Set(V.Passed.000051)
+F.Intrinsic.String.LPad(V.Local.sline,"0",3,V.Local.sline)
+v.Local.spromdate.Set(v.Passed.000011)
+f.Intrinsic.String.Left(v.Local.spromdate,4,v.Local.syear)
+f.Intrinsic.String.Right(v.Local.spromdate,4,v.Local.sMMDD)
+f.Intrinsic.String.Build("{0}{1}",v.Local.sMMDD,v.Local.syear,v.Local.spromdate)
+F.Intrinsic.Date.ConvertDString(V.Local.spromdate.Trim,"MM/DD/YYYY",V.Local.dpromdate)
+
+'query to see if there is already a date for that order/line
+F.Intrinsic.String.Build("Select * from GCG_4222_OE_ESD where ORDER_NO = '{0}' and LINE = '{1}'",V.Local.sord.Trim,V.Local.sline.Trim,V.Local.ssql)
+F.ODBC.Connection!conx.OpenRecordsetRW("rst",V.Local.ssql)
+F.intrinsic.Control.If(V.ODBC.conx!rst.EOF,=,True)
+'	F.ODBC.conx!rst.Set!ORDER_NO(V.Local.sord.Trim)
+'	F.ODBC.conx!rst.Set!LINE(V.Local.sline.Trim)
+'	'check to see if prom date changed if so set esd as that
+'	f.Intrinsic.Control.If(v.Local.spromdate,<>,00000000)
+'		F.ODBC.Conx!rst.Set!PROMDATE(V.Local.dpromdate)
+'		F.ODBC.Conx!rst.Set!ESD(V.Local.dpromdate)		
+'	f.Intrinsic.Control.EndIf
+'	F.ODBC.conx!rst.Update
+'F.Intrinsic.Control.Else
+	F.ODBC.conx!rst.AddNew
+	F.ODBC.conx!rst.Set!ORDER_NO(V.Local.sord.Trim)
+	F.ODBC.conx!rst.Set!LINE(V.Local.sline.Trim)
+	f.Intrinsic.Control.If(v.Local.spromdate,<>,00000000)
+		F.ODBC.Conx!rst.Set!PROMDATE(V.Local.dpromdate)
+		F.ODBC.Conx!rst.Set!ESD(V.Local.dpromdate)		
+	f.Intrinsic.Control.EndIf
+	F.ODBC.conx!rst.Update
+F.Intrinsic.Control.EndIf
+
+'clear the textbox
+V.Passed.GAB-TEXT-1.Set("")
+
+F.Intrinsic.Control.ExitSub
+
+F.Intrinsic.Control.Label("PostSave_Err")
+F.Intrinsic.Control.If(V.Ambient.ErrorNumber,<>,0)
+	Function.Intrinsic.String.Concat("Project: GCG_4222_OE_ESD.gas",V.Ambient.Newline,V.Ambient.Newline,"Subroutine: ",V.Ambient.CurrentSubroutine,V.Ambient.NewLine,"Error Occurred ",V.Ambient.ErrorNumber," with description ",V.Ambient.ErrorDescription,V.Local.sError)
+	F.Intrinsic.UI.Msgbox(V.Local.sError)
+	F.Intrinsic.Control.CallSub(Unload)
+Function.Intrinsic.Control.EndIf
+
+
+Program.Sub.PostSave.End
+
+Program.Sub.cmdSave_Click.Start
+F.Intrinsic.Control.SetErrorHandler("Form_UnLoad_Err")
+F.Intrinsic.Control.ClearErrors
+
+V.Local.sError.Declare(String)
+v.Local.sdate.Declare(string)
+v.Local.ddate.Declare(date)
+V.Local.sord.Declare(String)
+V.Local.sline.Declare(String)
+V.Local.sesd.Declare(String)
+V.Local.ssql.Declare(String)
+v.Local.desd.Declare(date)
+V.Local.sPromdate.Declare(String)
+V.Local.dPromDate.Declare(Date)
+V.Local.sYear.Declare(String)
+V.Local.sMMDD.Declare(String)
+
+'get the date value
+v.Local.sesd.Set(v.Screen.Form!dtpESD.Value)
+F.Intrinsic.String.Format(V.Local.sesd,"MM/DD/YYYY",V.Local.sesd)
+F.Intrinsic.Date.ConvertDString(V.Local.sesd.Trim,"MM/DD/YYYY",V.Local.desd)
+
+'Grab the Promise date
+v.Local.spromdate.Set(v.Passed.000011)
+f.Intrinsic.String.Left(v.Local.spromdate,4,v.Local.syear)
+f.Intrinsic.String.Right(v.Local.spromdate,4,v.Local.sMMDD)
+f.Intrinsic.String.Build("{0}{1}",v.Local.sMMDD,v.Local.syear,v.Local.spromdate)
+F.Intrinsic.Date.ConvertDString(V.Local.spromdate.Trim,"MM/DD/YYYY",V.Local.dpromdate)
+
+'set the local variables
+V.Local.sord.Set(V.Passed.000060)
+F.Intrinsic.String.LPad(V.Local.sord,"0",7,V.Local.sord)
+V.Local.sline.Set(V.Passed.000051)
+F.Intrinsic.String.LPad(V.Local.sline,"0",3,V.Local.sline)
+
+'close the form and save the data
+gui.Form..Visible(false)
+
+'query to see if there is already a date for that order/line
+F.Intrinsic.String.Build("Select * from GCG_4222_OE_ESD where ORDER_NO = '{0}' and LINE = '{1}'",V.Local.sord.Trim,V.Local.sline.Trim,V.Local.ssql)
+F.ODBC.Connection!conx.OpenRecordsetRW("rst",V.Local.ssql)
+F.intrinsic.Control.If(V.ODBC.conx!rst.EOF,<>,True)
+	F.ODBC.conx!rst.Set!ORDER_NO(V.Local.sord.Trim)
+	F.ODBC.conx!rst.Set!LINE(V.Local.sline.Trim)
+	F.ODBC.Conx!rst.Set!ESD(V.Local.desd.Trim)
+	F.ODBC.Conx!rst.Set!PROMDATE(V.Local.dPromDate)
+	F.ODBC.conx!rst.Update
+F.Intrinsic.Control.Else
+	F.ODBC.conx!rst.AddNew
+	F.ODBC.conx!rst.Set!ORDER_NO(V.Local.sord.Trim)
+	F.ODBC.conx!rst.Set!LINE(V.Local.sline.Trim)
+	F.ODBC.Conx!rst.Set!ESD(V.Local.desd.trim)
+	F.ODBC.Conx!rst.Set!PROMDATE(V.Local.dPromDate)
+	F.ODBC.conx!rst.Update
+F.Intrinsic.Control.EndIf
+
+F.Intrinsic.Control.ExitSub
+
+F.Intrinsic.Control.Label("Form_UnLoad_Err")
+F.Intrinsic.Control.If(V.Ambient.ErrorNumber,<>,0)
+	Function.Intrinsic.String.Concat("Project: GCG_4222_OE_ESD.g2u",V.Ambient.Newline,V.Ambient.Newline,"Subroutine: ",V.Ambient.CurrentSubroutine,V.Ambient.NewLine,"Error Occurred ",V.Ambient.ErrorNumber," with description ",V.Ambient.ErrorDescription,V.Local.sError)
+	F.Intrinsic.UI.Msgbox(V.Local.sError)
+	f.Intrinsic.Control.CallSub(unload)
+Function.Intrinsic.Control.EndIf
+
+
+Program.Sub.cmdSave_Click.End
+
+Program.Sub.Form_UnLoad.Start
+F.Intrinsic.Control.SetErrorHandler("Main_Err")
+F.Intrinsic.Control.ClearErrors
+
+V.Local.sError.Declare(String)
+V.Local..BulkDeclareString(sSql, sPromDate, sYear, sMMDD, sOrd, sLine)
+V.Local.dPromDate.Declare(Date)
+
+'close the form and program
+gui.Form..Visible(false)
+
+'Grab the Promise date
+v.Local.spromdate.Set(v.Passed.000011)
+f.Intrinsic.String.Left(v.Local.spromdate,4,v.Local.syear)
+f.Intrinsic.String.Right(v.Local.spromdate,4,v.Local.sMMDD)
+f.Intrinsic.String.Build("{0}{1}",v.Local.sMMDD,v.Local.syear,v.Local.spromdate)
+F.Intrinsic.Date.ConvertDString(V.Local.spromdate.Trim,"MM/DD/YYYY",V.Local.dpromdate)
+
+'set the local variables
+V.Local.sord.Set(V.Passed.000060)
+F.Intrinsic.String.LPad(V.Local.sord,"0",7,V.Local.sord)
+V.Local.sline.Set(V.Passed.000051)
+F.Intrinsic.String.LPad(V.Local.sline,"0",3,V.Local.sline)
+
+F.Intrinsic.String.Build("Select * from GCG_4222_OE_ESD where ORDER_NO = '{0}' and LINE = '{1}' ", V.Local.sOrd, V.Local.sline, V.Local.sSql)
+F.ODBC.Connection!Conx.OpenLocalRecordsetRW("rstEMERGENCY", V.Local.sSql)
+F.Intrinsic.Control.If(V.ODBC.Conx!rstEMERGENCY.EOF, =, True)
+	F.ODBC.Conx!rstEMERGENCY.AddNew
+	F.ODBC.Conx!rstEMERGENCY.Set!ORDER_NO(V.Local.sOrd)
+	F.ODBC.Conx!rstEMERGENCY.Set!LINE(V.Local.sLine)
+	F.ODBC.Conx!rstEMERGENCY.Set!ESD(V.Local.dPromDate)
+	F.ODBC.Conx!rstEMERGENCY.Set!PROMDATE(V.Local.dPromDate)
+	F.ODBC.Conx!rstEMERGENCY.Update
+F.Intrinsic.Control.EndIf
+F.ODBC.Conx!rstEMERGENCY.Close
+
+f.Intrinsic.Control.CallSub(unload)
+
+F.Intrinsic.Control.ExitSub
+
+F.Intrinsic.Control.Label("Main_Err")
+F.Intrinsic.Control.If(V.Ambient.ErrorNumber,<>,0)
+	Function.Intrinsic.String.Concat("Project: GCG_4222_OE_ESD.g2u",V.Ambient.Newline,V.Ambient.Newline,"Subroutine: ",V.Ambient.CurrentSubroutine,V.Ambient.NewLine,"Error Occurred ",V.Ambient.ErrorNumber," with description ",V.Ambient.ErrorDescription,V.Local.sError)
+	F.Intrinsic.UI.Msgbox(V.Local.sError)
+	f.Intrinsic.Control.CallSub(unload)
+Function.Intrinsic.Control.EndIf
+
+
+Program.Sub.Form_UnLoad.End
+
+Program.Sub.CheckPromDate.Start
+F.Intrinsic.Control.SetErrorHandler("CheckPromDate_Err")
+F.Intrinsic.Control.ClearErrors
+
+V.Local.sError.Declare(String)
+
+
+
+
+
+F.Intrinsic.Control.ExitSub
+
+F.Intrinsic.Control.Label("CheckPromDate_Err")
+F.Intrinsic.Control.If(V.Ambient.ErrorNumber,<>,0)
+	Function.Intrinsic.String.Concat("Project: GCG_4222_OE_ESD.g2u",V.Ambient.Newline,V.Ambient.Newline,"Subroutine: ",V.Ambient.CurrentSubroutine,V.Ambient.NewLine,"Error Occurred ",V.Ambient.ErrorNumber," with description ",V.Ambient.ErrorDescription,V.Local.sError)
+	F.Intrinsic.UI.Msgbox(V.Local.sError)
+	f.Intrinsic.Control.CallSub(unload)
+Function.Intrinsic.Control.EndIf
+
+
+Program.Sub.CheckPromDate.End
+
+Program.Sub.HeaderSave.Start
+F.Intrinsic.Control.SetErrorHandler("HeaderSave_Err")
+F.Intrinsic.Control.ClearErrors
+
+V.Local.sError.Declare(String)
+V.Local.sord.Declare(String)
+v.Local.sduedate.Declare(string)
+v.Local.dduedate.Declare(date)
+v.Local.ssql.Declare(string)
+v.Local.ssql2.Declare(string)
+v.Local.syear.Declare(string)
+v.Local.smmdd.Declare(string)
+v.Local.smm.Declare(String)
+v.Local.sdd.Declare(String)
+v.Local.spromdate.Declare(string)
+v.Local.dpromdate.Declare(date)
+v.Local.schecksql.Declare(string)
+
+'get the date value
+v.Local.sduedate.Set(v.Passed.000024)
+f.Intrinsic.String.Left(v.Local.sduedate,4,v.Local.syear)
+f.Intrinsic.String.Right(v.Local.sduedate,4,v.Local.smmdd)
+f.Intrinsic.String.Left(v.Local.smmdd,2,v.Local.smm)
+f.Intrinsic.String.Right(v.Local.smmdd,2,v.Local.sdd)
+
+f.Intrinsic.String.Build("{0}/{1}/{2}",v.Local.smm,v.Local.sdd,v.Local.syear,v.Local.sduedate)
+
+F.Intrinsic.String.Format(V.Local.sduedate,"MM/DD/YYYY",V.Local.sduedate)
+F.Intrinsic.Date.ConvertDString(V.Local.sduedate.Trim,"MM/DD/YYYY",V.Local.dduedate)
+
+'set the local variables
+V.Local.sord.Set(V.Passed.000003)
+F.Intrinsic.String.LPad(V.Local.sord,"0",7,V.Local.sord)
+
+'look to see if the date has changed
+f.Intrinsic.String.Build("Select DATE_DUE from V_ORDER_HEADER where ORDER_NO = '{0}'",v.Local.sord.Trim,v.Local.ssql)
+F.ODBC.Connection!conx.OpenRecordsetRO("rst",V.Local.ssql)
+F.intrinsic.Control.if(V.ODBC.conx!rst.EOF,=,False)
+	'set the string prom date
+	v.Local.spromdate.Set(v.ODBC.Conx!rst.FieldValTrim!DATE_DUE)
+	F.Intrinsic.String.Format(V.Local.spromdate,"MM/DD/YYYY",V.Local.spromdate)
+	F.Intrinsic.Date.ConvertDString(V.Local.spromdate.Trim,"MM/DD/YYYY",V.Local.dpromdate)
+	'see if the date has changed
+	f.Intrinsic.Control.If(v.Local.dduedate,<>,v.Local.dpromdate)
+		'see if this order is in the custom table
+		f.Intrinsic.String.Build("Select * from GCG_4222_OE_ESD where ORDER_NO = '{0}'",v.Local.sord.Trim,v.Local.schecksql)
+		F.ODBC.Connection!conx.OpenRecordsetRW("rst2",V.Local.schecksql)
+		F.intrinsic.Control.if(V.ODBC.conx!rst2.EOF,=,False)
+			'update the custom table
+			f.Intrinsic.String.Build("Update GCG_4222_OE_ESD set ESD = '{0}', PROMDATE = '{0}' where ORDER_NO = '{1}'",v.Local.dduedate.PervasiveDate,v.Local.sord.Trim,v.Local.ssql2)
+			f.ODBC.Connection!Conx.Execute(v.Local.ssql2)
+		f.Intrinsic.Control.Else
+			F.ODBC.conx!rst2.AddNew
+			F.ODBC.conx!rst2.Set!ORDER_NO(V.Local.sord.Trim)
+			F.ODBC.Conx!rst2.Set!PROMDATE(V.Local.dduedate.trim)
+			F.ODBC.Conx!rst2.Set!ESD(V.Local.dduedate.trim)
+			F.ODBC.conx!rst2.Update
+		f.Intrinsic.Control.EndIf
+		f.ODBC.Conx!rst2.Close	
+	f.Intrinsic.Control.EndIf
+f.Intrinsic.Control.Else
+f.Intrinsic.Control.EndIf
+'close connection
+f.ODBC.Conx!rst.Close
+
+F.Intrinsic.Control.ExitSub
+
+F.Intrinsic.Control.Label("HeaderSave_Err")
+F.Intrinsic.Control.If(V.Ambient.ErrorNumber,<>,0)
+	Function.Intrinsic.String.Concat("Project: GCG_4222_OE_ESD.g2u",V.Ambient.Newline,V.Ambient.Newline,"Subroutine: ",V.Ambient.CurrentSubroutine,V.Ambient.NewLine,"Error Occurred ",V.Ambient.ErrorNumber," with description ",V.Ambient.ErrorDescription,V.Local.sError)
+	F.Intrinsic.UI.Msgbox(V.Local.sError)
+	f.Intrinsic.Control.CallSub(unload)
+Function.Intrinsic.Control.EndIf
+
+
+Program.Sub.HeaderSave.End
+
+Program.Sub.Comments.Start
+${$0$}$GCG_4222_OE_ESD$}$WAW$}$9/18/2016$}$False
+${$3$}$0$}$$}$0$}$-1$}$$}$12:00:00 AM$}$'    ShippingDashPickList.rpt report required
+Program.Sub.Comments.End
+
