@@ -1,0 +1,173 @@
+Program.Sub.ScreenSU.Start
+Program.Sub.ScreenSU.End
+
+Program.Sub.Preflight.Start
+
+Program.Sub.Preflight.End
+
+Program.Sub.Main.Start
+
+F.Intrinsic.Control.SetErrorHandler("Main_Err")
+F.Intrinsic.Control.ClearErrors
+
+V.Local.sError.Declare(String)
+
+F.ODBC.Connection!Conx.OpenConnection(V.Ambient.PDSN,V.Ambient.PUser,V.Ambient.PPass,120)
+
+
+'check to see if the populate hooks on the order lines screen fire
+F.Intrinsic.Control.If(V.Caller.Hook,=,12705)
+	'call the populate sub
+	F.Intrinsic.Control.CallSub(Populate)
+F.Intrinsic.Control.ElseIf(V.Caller.Hook,=,12231)
+	'call the post save sub
+	F.Intrinsic.Control.CallSub(Postsave)
+
+F.Intrinsic.Control.ElseIf(V.Caller.Hook,=,12010)
+	'call the populate sub
+	F.Intrinsic.Control.CallSub(Populate)
+F.Intrinsic.Control.EndIf
+
+F.Intrinsic.Control.ExitSub
+
+F.Intrinsic.Control.Label("Main_Err")
+F.Intrinsic.Control.If(V.Ambient.ErrorNumber,<>,0)
+	Function.Intrinsic.String.Concat("Project: GCG_4222_OE_ESD.g2u",V.Ambient.Newline,V.Ambient.Newline,"Subroutine: ",V.Ambient.CurrentSubroutine,V.Ambient.NewLine,"Error Occurred ",V.Ambient.ErrorNumber," with description ",V.Ambient.ErrorDescription,V.Local.sError)
+	F.Intrinsic.UI.Msgbox(V.Local.sError)
+	F.Intrinsic.Control.CallSub(Unload)
+Function.Intrinsic.Control.EndIf
+
+Program.Sub.Main.End
+
+Program.Sub.Unload.Start
+F.Intrinsic.Control.SetErrorHandler("Unload_Err")
+F.Intrinsic.Control.ClearErrors
+
+V.Local.sError.Declare(String)
+
+F.ODBC.Connection!Conx.Close
+F.Intrinsic.Control.End
+
+F.Intrinsic.Control.ExitSub
+
+F.Intrinsic.Control.Label("Unload_Err")
+F.Intrinsic.Control.If(V.Ambient.ErrorNumber,<>,0)
+	Function.Intrinsic.String.Concat("Project: GCG_4222_OE_ESD.g2u",V.Ambient.Newline,V.Ambient.Newline,"Subroutine: ",V.Ambient.CurrentSubroutine,V.Ambient.NewLine,"Error Occurred ",V.Ambient.ErrorNumber," with description ",V.Ambient.ErrorDescription,V.Local.sError)
+	F.Intrinsic.UI.Msgbox(V.Local.sError)
+	F.Intrinsic.Control.End
+
+Function.Intrinsic.Control.EndIf
+
+Program.Sub.Unload.End
+
+Program.Sub.Populate.Start
+
+F.Intrinsic.Control.SetErrorHandler("Populate_Err")
+F.Intrinsic.Control.ClearErrors
+
+V.Local.sError.Declare(String)
+V.Local.sord.Declare(String)
+V.Local.sline.Declare(String)
+V.Local.ssql.Declare(String)
+V.Local.sesd.Declare(String)
+V.Local.sstring.Declare(String)
+
+'clear the textbox
+V.Passed.GAB-TEXT-1.Set("")
+
+'set the properties of the ship date label
+V.Passed.GAB-LBL-1.Set("Estimated Shipping Date (MM/DD/YYYY)")
+F.Intrinsic.Variable.SetProperty("GAB-LBL-1","PL",294)
+F.Intrinsic.Variable.SetProperty("GAB-LBL-1","PT",251)
+F.Intrinsic.Variable.SetProperty("GAB-LBL-1","PW",200)
+F.Intrinsic.UI.ChangeCallerProperty(V.Passed.GAB-LBL-1,"HIDE",0)
+
+'set the properties for the textbox
+F.Intrinsic.Variable.SetProperty("GAB-TEXT-1","PL",295)
+F.Intrinsic.Variable.SetProperty("GAB-TEXT-1","PT",272)
+F.Intrinsic.Variable.SetProperty("GAB-TEXT-1","PW",80)
+F.Intrinsic.UI.ChangeCallerProperty(V.Passed.GAB-TEXT-1,"HIDE",0)
+F.Intrinsic.UI.ChangeCallerProperty(V.Passed.GAB-TEXT-1,"LOCK",0)
+
+'set the local variables
+V.Local.sord.Set(V.Passed.000060)
+F.Intrinsic.String.LPad(V.Local.sord,"0",7,V.Local.sord)
+V.Local.sline.Set(V.Passed.000051)
+F.Intrinsic.String.LPad(V.Local.sline,"0",3,V.Local.sline)
+
+'query to see if there is already a date for that order/line
+F.Intrinsic.String.Build("Select ESD from GCG_4222_OE_ESD where ORDER_NO = {0} and LINE = {1}",V.Local.sord.Trim,V.Local.sline.Trim,V.Local.ssql)
+F.ODBC.Connection!conx.OpenRecordsetRO("rst",V.Local.ssql)
+F.intrinsic.Control.If(V.ODBC.conx!rst.EOF,<>,True)
+	'set the date to a local variable and then to the textbox
+	V.Local.sesd.Set(V.ODBC.Conx!rst.FieldValTrim!ESD)
+	V.Passed.GAB-TEXT-1.Set(V.Local.sesd.Trim)
+F.Intrinsic.Control.EndIf
+F.ODBC.conx!rst.Close
+
+F.Intrinsic.Control.ExitSub
+
+F.Intrinsic.Control.Label("Populate_Err")
+F.Intrinsic.Control.If(V.Ambient.ErrorNumber,<>,0)
+	Function.Intrinsic.String.Concat("Project: GCG_4222_OE_ESD.g2u",V.Ambient.Newline,V.Ambient.Newline,"Subroutine: ",V.Ambient.CurrentSubroutine,V.Ambient.NewLine,"Error Occurred ",V.Ambient.ErrorNumber," with description ",V.Ambient.ErrorDescription,V.Local.sError)
+	F.Intrinsic.UI.Msgbox(V.Local.sError)
+	F.Intrinsic.Control.CallSub(Unload)
+Function.Intrinsic.Control.EndIf
+
+
+Program.Sub.Populate.End
+
+Program.Sub.PostSave.Start
+F.Intrinsic.Control.SetErrorHandler("PostSave_Err")
+F.Intrinsic.Control.ClearErrors
+
+
+V.Local.sError.Declare(String)
+V.Local.sord.Declare(String)
+V.Local.sline.Declare(String)
+V.Local.sesd.Declare(String)
+V.Local.ssql.Declare(String)
+
+'set the local variables
+V.Local.sord.Set(V.Passed.000060)
+F.Intrinsic.String.LPad(V.Local.sord,"0",7,V.Local.sord)
+V.Local.sline.Set(V.Passed.000051)
+F.Intrinsic.String.LPad(V.Local.sline,"0",3,V.Local.sline)
+
+V.Local.sesd.Set(V.Passed.GAB-TEXT-1.Trim)
+
+'query to see if there is already a date for that order/line
+F.Intrinsic.String.Build("Select * from GCG_4222_OE_ESD where ORDER_NO = '{0}' and LINE = '{1}'",V.Local.sord.Trim,V.Local.sline.Trim,V.Local.ssql)
+F.ODBC.Connection!conx.OpenRecordsetRW("rst",V.Local.ssql)
+F.intrinsic.Control.If(V.ODBC.conx!rst.EOF,<>,True)
+	F.ODBC.conx!rst.Set!ORDER_NO(V.Local.sord.Trim)
+	F.ODBC.conx!rst.Set!LINE(V.Local.sline.Trim)
+	F.ODBC.Conx!rst.Set!ESD(V.Local.sesd.Trim)
+	F.ODBC.conx!rst.Update
+F.Intrinsic.Control.Else
+	F.ODBC.conx!rst.AddNew
+	F.ODBC.conx!rst.Set!ORDER_NO(V.Local.sord.Trim)
+	F.ODBC.conx!rst.Set!LINE(V.Local.sline.Trim)
+	F.ODBC.Conx!rst.Set!ESD(V.Local.sesd.trim)
+	F.ODBC.conx!rst.Update
+F.Intrinsic.Control.EndIf
+
+'clear the textbox
+V.Passed.GAB-TEXT-1.Set("")
+
+F.Intrinsic.Control.ExitSub
+
+F.Intrinsic.Control.Label("PostSave_Err")
+F.Intrinsic.Control.If(V.Ambient.ErrorNumber,<>,0)
+	Function.Intrinsic.String.Concat("Project: GCG_4222_OE_ESD.gas",V.Ambient.Newline,V.Ambient.Newline,"Subroutine: ",V.Ambient.CurrentSubroutine,V.Ambient.NewLine,"Error Occurred ",V.Ambient.ErrorNumber," with description ",V.Ambient.ErrorDescription,V.Local.sError)
+	F.Intrinsic.UI.Msgbox(V.Local.sError)
+	F.Intrinsic.Control.CallSub(Unload)
+Function.Intrinsic.Control.EndIf
+
+
+Program.Sub.PostSave.End
+
+Program.Sub.Comments.Start
+${$0$}$GCG_4222_OE_ESD$}$WAW$}$9/18/2016$}$False
+Program.Sub.Comments.End
+
