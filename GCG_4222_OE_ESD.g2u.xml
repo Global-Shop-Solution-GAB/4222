@@ -1,0 +1,764 @@
+<?xml version="1.0" encoding="utf-8"?>
+<SyntaxEdit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <BorderStyle>None</BorderStyle>
+  <Pages>
+    <DefaultPage>
+      <Header>
+        <Offset>
+          <X>0</X>
+          <Y>0</Y>
+        </Offset>
+      </Header>
+      <Footer>
+        <Offset>
+          <X>0</X>
+          <Y>0</Y>
+        </Offset>
+      </Footer>
+      <PageSize>
+        <Width>0</Width>
+        <Height>0</Height>
+      </PageSize>
+    </DefaultPage>
+  </Pages>
+  <DisplayStrings />
+  <Selection>
+    <SelectionRect>
+      <Location>
+        <X>0</X>
+        <Y>419</Y>
+      </Location>
+      <Size>
+        <Width>24</Width>
+        <Height>3</Height>
+      </Size>
+      <X>0</X>
+      <Y>419</Y>
+      <Width>24</Width>
+      <Height>3</Height>
+    </SelectionRect>
+    <Options>UseColors OverwriteBlocks SelectLineOnTripleClick CopyLineWhenEmpty SelectWordOnCtrlClick</Options>
+  </Selection>
+  <Gutter>
+    <LineNumbersForeColor>WindowText</LineNumbersForeColor>
+    <Options>PaintLineNumbers PaintBookMarks PaintLineModificators</Options>
+  </Gutter>
+  <Margin>
+    <Visible>false</Visible>
+  </Margin>
+  <LineStyles />
+  <LineSeparator />
+  <Printing>
+    <Footer>
+      <Offset>
+        <X>0</X>
+        <Y>0</Y>
+      </Offset>
+    </Footer>
+    <Header>
+      <Offset>
+        <X>0</X>
+        <Y>0</Y>
+      </Offset>
+    </Header>
+  </Printing>
+  <WhiteSpace />
+  <TextSource>
+    <Position>
+      <X>0</X>
+      <Y>419</Y>
+    </Position>
+    <Lexer>
+      <Scheme>
+        <Author>Quantum Whale, LLC.</Author>
+        <Copyright>Copyright (c) 2004 - 2014 Quantum Whale LLC.</Copyright>
+        <FileType>gas</FileType>
+        <Version>1.5</Version>
+        <Styles>
+          <Style>
+            <Name>idents</Name>
+            <ForeColor>ControlText</ForeColor>
+          </Style>
+          <Style>
+            <Name>numbers</Name>
+            <ForeColor>ControlText</ForeColor>
+          </Style>
+          <Style>
+            <Name>reswords</Name>
+            <ForeColor>Blue</ForeColor>
+          </Style>
+          <Style>
+            <Name>comments</Name>
+            <ForeColor>Green</ForeColor>
+            <PlainText>true</PlainText>
+          </Style>
+          <Style>
+            <Name>xmlcomments</Name>
+            <ForeColor>Gray</ForeColor>
+          </Style>
+          <Style>
+            <Name>symbols</Name>
+            <ForeColor>WindowText</ForeColor>
+          </Style>
+          <Style>
+            <Name>whitespace</Name>
+            <ForeColor>WindowText</ForeColor>
+          </Style>
+          <Style>
+            <Name>strings</Name>
+            <ForeColor>Maroon</ForeColor>
+            <PlainText>true</PlainText>
+          </Style>
+          <Style>
+            <Name>directives</Name>
+            <ForeColor>Blue</ForeColor>
+          </Style>
+          <Style>
+            <Name>htmlparams</Name>
+            <ForeColor>Red</ForeColor>
+          </Style>
+          <Style>
+            <Name>syntax errors</Name>
+            <ForeColor>Red</ForeColor>
+          </Style>
+          <Style>
+            <Name>codes nippets</Name>
+            <ForeColor>Black</ForeColor>
+            <BackColor>255:180:228:180</BackColor>
+          </Style>
+          <Style>
+            <Name>GabReservedWords</Name>
+            <ForeColor>Blue</ForeColor>
+          </Style>
+          <Style>
+            <Name>GabTokenWithBrackets</Name>
+            <ForeColor>Gray</ForeColor>
+          </Style>
+          <Style>
+            <Name>GabFunctionIntrinsicDebug</Name>
+            <ForeColor>White</ForeColor>
+            <BackColor>Red</BackColor>
+            <FontStyle>Bold</FontStyle>
+            <PlainText>true</PlainText>
+          </Style>
+          <Style>
+            <Name>GabVariable</Name>
+            <ForeColor>Teal</ForeColor>
+          </Style>
+          <Style>
+            <Name>GabVariableSystemDefined</Name>
+            <ForeColor>Teal</ForeColor>
+            <FontStyle>Bold Italic</FontStyle>
+          </Style>
+          <Style>
+            <Name>GabGui</Name>
+            <ForeColor>OrangeRed</ForeColor>
+          </Style>
+          <Style>
+            <Name>GabProgramSubStartEnd</Name>
+            <ForeColor>Black</ForeColor>
+            <BackColor>LightGray</BackColor>
+            <FontStyle>Bold</FontStyle>
+            <PlainText>true</PlainText>
+          </Style>
+        </Styles>
+      </Scheme>
+    </Lexer>
+    <TextStrings>
+      <Lines>
+        <string>Program.Sub.ScreenSU.Start</string>
+        <string>Gui.Form..Create</string>
+        <string>Gui.Form..Caption("ESD")</string>
+        <string>Gui.Form..Size(2610,2235)</string>
+        <string>Gui.Form..MinX(0)</string>
+        <string>Gui.Form..MinY(0)</string>
+        <string>Gui.Form..Position(0,0)</string>
+        <string>Gui.Form..BackColor(-2147483633)</string>
+        <string>Gui.Form..MaxButton(False)</string>
+        <string>Gui.Form..MinButton(False)</string>
+        <string>Gui.Form..MousePointer(0)</string>
+        <string>Gui.Form..Sizeable(False)</string>
+        <string>Gui.Form..Event(UnLoad,Form_UnLoad)</string>
+        <string>Gui.Form.dtpESD.Create(DatePicker)</string>
+        <string>Gui.Form.dtpESD.Size(1935,285)</string>
+        <string>Gui.Form.dtpESD.Position(195,510)</string>
+        <string>Gui.Form.lbl1.Create(Label,"Estimated Shipping Date",True,2160,255,0,165,240,True,0,"Arial",8,-2147483633,0)</string>
+        <string>Gui.Form.cmdSave.Create(Button)</string>
+        <string>Gui.Form.cmdSave.Size(855,375)</string>
+        <string>Gui.Form.cmdSave.Position(225,1035)</string>
+        <string>Gui.Form.cmdSave.Caption("Save")</string>
+        <string>Gui.Form.cmdSave.Event(Click,cmdSave_Click)</string>
+        <string>Program.Sub.ScreenSU.End</string>
+        <string />
+        <string>Program.Sub.Preflight.Start</string>
+        <string>Program.Sub.Preflight.End</string>
+        <string />
+        <string>Program.Sub.Main.Start</string>
+        <string>F.Intrinsic.Control.SetErrorHandler("Main_Err")</string>
+        <string>F.Intrinsic.Control.ClearErrors</string>
+        <string />
+        <string>V.Local.sError.Declare(String)</string>
+        <string>v.Local.spromdate.Declare(string)</string>
+        <string>V.Local.sord.Declare(String)</string>
+        <string>V.Local.sline.Declare(String)</string>
+        <string>v.Local.ssql.Declare(string)</string>
+        <string>v.Local.dpromdate.Declare(date)</string>
+        <string>v.Local.syear.Declare(string)</string>
+        <string>v.Local.smmdd.Declare(string)</string>
+        <string />
+        <string />
+        <string>F.ODBC.Connection!Conx.OpenConnection(V.Ambient.PDSN,V.Ambient.PUser,V.Ambient.PPass,120)</string>
+        <string />
+        <string>'check to see if the populate hooks on the order lines screen fire</string>
+        <string>F.Intrinsic.Control.If(V.Caller.Hook,=,12705)</string>
+        <string>	</string>
+        <string>	'check to see if the promise date is blank</string>
+        <string>	v.Local.spromdate.Set(v.Passed.000011)</string>
+        <string>	f.Intrinsic.Control.If(v.Local.spromdate,=,"00000000")</string>
+        <string>		'set the script 1 text</string>
+        <string>		v.Passed.000162.Set("ESD")</string>
+        <string>		f.Intrinsic.Control.CallSub(unload)</string>
+        <string>	f.Intrinsic.Control.EndIf</string>
+        <string>	'if not blank format the date</string>
+        <string>	f.Intrinsic.String.Right(v.Local.spromdate,4,v.Local.smmdd)</string>
+        <string>	f.Intrinsic.String.Left(v.Local.spromdate,4,v.Local.syear)</string>
+        <string>	f.Intrinsic.String.Build("{0}{1}",v.Local.smmdd,v.Local.syear,v.Local.spromdate)</string>
+        <string>	F.Intrinsic.Date.ConvertDString(V.Local.spromdate.Trim,"MM/DD/YYYY",V.Local.dpromdate)</string>
+        <string>	'set the local variables</string>
+        <string>	V.Local.sord.Set(V.Passed.000060)</string>
+        <string>	F.Intrinsic.String.LPad(V.Local.sord,"0",7,V.Local.sord)</string>
+        <string>	V.Local.sline.Set(V.Passed.000051)</string>
+        <string>	F.Intrinsic.String.LPad(V.Local.sline,"0",3,V.Local.sline)</string>
+        <string>	'update the promise date</string>
+        <string>	f.Intrinsic.String.Build("select * from GCG_4222_OE_ESD where ORDER_NO = '{0}' and LINE = '{1}'",V.Local.sord.Trim,V.Local.sline.Trim,V.Local.ssql)</string>
+        <string>	F.ODBC.Connection!conx.OpenRecordsetRW("rst",V.Local.ssql)</string>
+        <string>	F.intrinsic.Control.If(V.ODBC.conx!rst.EOF,&lt;&gt;,True)</string>
+        <string>		'set the promise date</string>
+        <string>		f.Intrinsic.Control.If(v.Local.spromdate,&lt;&gt;,"")</string>
+        <string>			F.ODBC.Conx!rst.Set!PROMDATE(V.Local.dpromdate.Trim)</string>
+        <string>			F.ODBC.Conx!rst.Set!ESD(V.Local.dpromdate.Trim)</string>
+        <string>		f.Intrinsic.Control.EndIf	</string>
+        <string>		F.ODBC.conx!rst.Update</string>
+        <string>	F.Intrinsic.Control.Else</string>
+        <string>		F.ODBC.conx!rst.AddNew</string>
+        <string>		F.ODBC.conx!rst.Set!ORDER_NO(V.Local.sord.Trim)</string>
+        <string>		F.ODBC.conx!rst.Set!LINE(V.Local.sline.Trim)</string>
+        <string>		'set the promise date</string>
+        <string>		f.Intrinsic.Control.If(v.Local.spromdate,&lt;&gt;,"")</string>
+        <string>			F.ODBC.Conx!rst.Set!PROMDATE(V.Local.dpromdate.Trim)</string>
+        <string>			F.ODBC.Conx!rst.Set!ESD(V.Local.dpromdate.Trim)		</string>
+        <string>		f.Intrinsic.Control.EndIf	</string>
+        <string>		F.ODBC.conx!rst.Update</string>
+        <string>	F.Intrinsic.Control.EndIf</string>
+        <string>	'set the script 1 text</string>
+        <string>	v.Passed.000162.Set("ESD")</string>
+        <string>F.Intrinsic.Control.ElseIf(V.Caller.Hook,=,12231)</string>
+        <string>	'call the post save sub</string>
+        <string>	F.Intrinsic.Control.CallSub(Postsave)</string>
+        <string>f.Intrinsic.Control.ElseIf(v.Caller.Hook,=,12410)</string>
+        <string>	F.Intrinsic.Control.CallSub(Populate)</string>
+        <string>	</string>
+        <string>'otherwise if being ran from header</string>
+        <string>f.Intrinsic.Control.ElseIf(v.Caller.Hook,=,11870)</string>
+        <string>	'call the header save sub</string>
+        <string>	f.Intrinsic.Control.CallSub(headersave)	</string>
+        <string>F.Intrinsic.Control.EndIf</string>
+        <string />
+        <string>F.Intrinsic.Control.ExitSub</string>
+        <string />
+        <string>F.Intrinsic.Control.Label("Main_Err")</string>
+        <string>F.Intrinsic.Control.If(V.Ambient.ErrorNumber,&lt;&gt;,0)</string>
+        <string>	Function.Intrinsic.String.Concat("Project: GCG_4222_OE_ESD.g2u",V.Ambient.Newline,V.Ambient.Newline,"Subroutine: ",V.Ambient.CurrentSubroutine,V.Ambient.NewLine,"Error Occurred ",V.Ambient.ErrorNumber," with description ",V.Ambient.ErrorDescription,V.Local.sError)</string>
+        <string>	F.Intrinsic.UI.Msgbox(V.Local.sError)</string>
+        <string>	F.Intrinsic.Control.CallSub(Unload)</string>
+        <string>Function.Intrinsic.Control.EndIf</string>
+        <string />
+        <string>Program.Sub.Main.End</string>
+        <string />
+        <string>Program.Sub.Unload.Start</string>
+        <string>F.Intrinsic.Control.SetErrorHandler("Unload_Err")</string>
+        <string>F.Intrinsic.Control.ClearErrors</string>
+        <string />
+        <string>V.Local.sError.Declare(String)</string>
+        <string />
+        <string>F.ODBC.Connection!Conx.Close</string>
+        <string>F.Intrinsic.Control.End</string>
+        <string />
+        <string>F.Intrinsic.Control.ExitSub</string>
+        <string />
+        <string>F.Intrinsic.Control.Label("Unload_Err")</string>
+        <string>F.Intrinsic.Control.If(V.Ambient.ErrorNumber,&lt;&gt;,0)</string>
+        <string>	Function.Intrinsic.String.Concat("Project: GCG_4222_OE_ESD.g2u",V.Ambient.Newline,V.Ambient.Newline,"Subroutine: ",V.Ambient.CurrentSubroutine,V.Ambient.NewLine,"Error Occurred ",V.Ambient.ErrorNumber," with description ",V.Ambient.ErrorDescription,V.Local.sError)</string>
+        <string>	F.Intrinsic.UI.Msgbox(V.Local.sError)</string>
+        <string>	F.Intrinsic.Control.End</string>
+        <string />
+        <string>Function.Intrinsic.Control.EndIf</string>
+        <string />
+        <string>Program.Sub.Unload.End</string>
+        <string />
+        <string>Program.Sub.Populate.Start</string>
+        <string>F.Intrinsic.Control.SetErrorHandler("Populate_Err")</string>
+        <string>F.Intrinsic.Control.ClearErrors</string>
+        <string />
+        <string>V.Local.sError.Declare(String)</string>
+        <string />
+        <string>v.Local.sdate.Declare(string)</string>
+        <string>v.Local.ddate.Declare(date)</string>
+        <string>V.Local.sord.Declare(String)</string>
+        <string>V.Local.sline.Declare(String)</string>
+        <string>V.Local.sesd.Declare(String)</string>
+        <string>V.Local.ssql.Declare(String)</string>
+        <string>v.Local.desd.Declare(date)</string>
+        <string />
+        <string>'set the local variables</string>
+        <string>V.Local.sord.Set(V.Passed.000060)</string>
+        <string>F.Intrinsic.String.LPad(V.Local.sord,"0",7,V.Local.sord)</string>
+        <string>V.Local.sline.Set(V.Passed.000051)</string>
+        <string>F.Intrinsic.String.LPad(V.Local.sline,"0",3,V.Local.sline)</string>
+        <string />
+        <string>'query to see if there is already a date for that order/line</string>
+        <string>F.Intrinsic.String.Build("select ESD from GCG_4222_OE_ESD where ORDER_NO = '{0}' and LINE = '{1}'",V.Local.sord.Trim,V.Local.sline.Trim,V.Local.ssql)</string>
+        <string>f.ODBC.Connection!Conx.OpenRecordsetRO("rst",v.Local.ssql)</string>
+        <string>F.intrinsic.Control.If(V.ODBC.conx!rst.EOF,&lt;&gt;,True)</string>
+        <string>	v.Local.sesd.Set(v.ODBC.Conx!rst.FieldValTrim!ESD)</string>
+        <string>	f.Intrinsic.Control.If(v.Local.sesd,&lt;&gt;,"")</string>
+        <string>	f.Intrinsic.Control.AndIf(v.Local.sesd,&lt;&gt;,"01/01/1900")</string>
+        <string>		f.Intrinsic.String.Format(v.Local.sesd,"MM/DD/YYYY",v.Local.desd)</string>
+        <string>		gui.Form.dtpESD.Value(v.Local.desd)</string>
+        <string>	f.Intrinsic.Control.EndIf</string>
+        <string>F.Intrinsic.Control.EndIf</string>
+        <string>f.ODBC.Conx!rst.Close</string>
+        <string />
+        <string>'make the form visible</string>
+        <string>gui.Form..Visible(true)</string>
+        <string />
+        <string>F.Intrinsic.Control.ExitSub</string>
+        <string />
+        <string>F.Intrinsic.Control.Label("Populate_Err")</string>
+        <string>F.Intrinsic.Control.If(V.Ambient.ErrorNumber,&lt;&gt;,0)</string>
+        <string>	Function.Intrinsic.String.Concat("Project: GCG_4222_OE_ESD.g2u",V.Ambient.Newline,V.Ambient.Newline,"Subroutine: ",V.Ambient.CurrentSubroutine,V.Ambient.NewLine,"Error Occurred ",V.Ambient.ErrorNumber," with description ",V.Ambient.ErrorDescription,V.Local.sError)</string>
+        <string>	F.Intrinsic.UI.Msgbox(V.Local.sError)</string>
+        <string>	F.Intrinsic.Control.CallSub(Unload)</string>
+        <string>Function.Intrinsic.Control.EndIf</string>
+        <string />
+        <string />
+        <string>Program.Sub.Populate.End</string>
+        <string />
+        <string>Program.Sub.PostSave.Start</string>
+        <string>F.Intrinsic.Control.SetErrorHandler("PostSave_Err")</string>
+        <string>F.Intrinsic.Control.ClearErrors</string>
+        <string />
+        <string>v.Local.spromcheck.Declare(string)</string>
+        <string>V.Local.sError.Declare(String)</string>
+        <string>V.Local.sord.Declare(String)</string>
+        <string>V.Local.sline.Declare(String)</string>
+        <string>V.Local.sesd.Declare(String)</string>
+        <string>V.Local.ssql.Declare(String)</string>
+        <string>v.Local.spromdate.Declare(String)</string>
+        <string>v.Local.dpromdate.Declare(date)</string>
+        <string>v.Local.syear.Declare(string)</string>
+        <string>v.Local.sMMDD.Declare(STring)</string>
+        <string />
+        <string>'set the local variables</string>
+        <string>V.Local.sord.Set(V.Passed.000060)</string>
+        <string>F.Intrinsic.String.LPad(V.Local.sord,"0",7,V.Local.sord)</string>
+        <string>V.Local.sline.Set(V.Passed.000051)</string>
+        <string>F.Intrinsic.String.LPad(V.Local.sline,"0",3,V.Local.sline)</string>
+        <string>v.Local.spromdate.Set(v.Passed.000011)</string>
+        <string>f.Intrinsic.String.Left(v.Local.spromdate,4,v.Local.syear)</string>
+        <string>f.Intrinsic.String.Right(v.Local.spromdate,4,v.Local.sMMDD)</string>
+        <string>f.Intrinsic.String.Build("{0}{1}",v.Local.sMMDD,v.Local.syear,v.Local.spromdate)</string>
+        <string>F.Intrinsic.Date.ConvertDString(V.Local.spromdate.Trim,"MM/DD/YYYY",V.Local.dpromdate)</string>
+        <string />
+        <string>'query to see if there is already a date for that order/line</string>
+        <string>F.Intrinsic.String.Build("Select * from GCG_4222_OE_ESD where ORDER_NO = '{0}' and LINE = '{1}'",V.Local.sord.Trim,V.Local.sline.Trim,V.Local.ssql)</string>
+        <string>F.ODBC.Connection!conx.OpenRecordsetRW("rst",V.Local.ssql)</string>
+        <string>F.intrinsic.Control.If(V.ODBC.conx!rst.EOF,&lt;&gt;,True)</string>
+        <string>	F.ODBC.conx!rst.Set!ORDER_NO(V.Local.sord.Trim)</string>
+        <string>	F.ODBC.conx!rst.Set!LINE(V.Local.sline.Trim)</string>
+        <string>	'check to see if prom date changed if so set esd as that</string>
+        <string>	f.Intrinsic.Control.If(v.Local.spromdate,&lt;&gt;,00000000)</string>
+        <string>		F.ODBC.Conx!rst.Set!PROMDATE(V.Local.dpromdate)</string>
+        <string>		F.ODBC.Conx!rst.Set!ESD(V.Local.dpromdate)		</string>
+        <string>	f.Intrinsic.Control.EndIf</string>
+        <string>	F.ODBC.conx!rst.Update</string>
+        <string>F.Intrinsic.Control.Else</string>
+        <string>	F.ODBC.conx!rst.AddNew</string>
+        <string>	F.ODBC.conx!rst.Set!ORDER_NO(V.Local.sord.Trim)</string>
+        <string>	F.ODBC.conx!rst.Set!LINE(V.Local.sline.Trim)</string>
+        <string>	f.Intrinsic.Control.If(v.Local.spromdate,&lt;&gt;,00000000)</string>
+        <string>		F.ODBC.Conx!rst.Set!PROMDATE(V.Local.dpromdate)</string>
+        <string>		F.ODBC.Conx!rst.Set!ESD(V.Local.dpromdate)		</string>
+        <string>	f.Intrinsic.Control.EndIf</string>
+        <string>	F.ODBC.conx!rst.Update</string>
+        <string>F.Intrinsic.Control.EndIf</string>
+        <string />
+        <string>'clear the textbox</string>
+        <string>V.Passed.GAB-TEXT-1.Set("")</string>
+        <string />
+        <string>F.Intrinsic.Control.ExitSub</string>
+        <string />
+        <string>F.Intrinsic.Control.Label("PostSave_Err")</string>
+        <string>F.Intrinsic.Control.If(V.Ambient.ErrorNumber,&lt;&gt;,0)</string>
+        <string>	Function.Intrinsic.String.Concat("Project: GCG_4222_OE_ESD.gas",V.Ambient.Newline,V.Ambient.Newline,"Subroutine: ",V.Ambient.CurrentSubroutine,V.Ambient.NewLine,"Error Occurred ",V.Ambient.ErrorNumber," with description ",V.Ambient.ErrorDescription,V.Local.sError)</string>
+        <string>	F.Intrinsic.UI.Msgbox(V.Local.sError)</string>
+        <string>	F.Intrinsic.Control.CallSub(Unload)</string>
+        <string>Function.Intrinsic.Control.EndIf</string>
+        <string />
+        <string />
+        <string>Program.Sub.PostSave.End</string>
+        <string />
+        <string>Program.Sub.cmdSave_Click.Start</string>
+        <string>F.Intrinsic.Control.SetErrorHandler("Form_UnLoad_Err")</string>
+        <string>F.Intrinsic.Control.ClearErrors</string>
+        <string />
+        <string>V.Local.sError.Declare(String)</string>
+        <string>v.Local.sdate.Declare(string)</string>
+        <string>v.Local.ddate.Declare(date)</string>
+        <string>V.Local.sord.Declare(String)</string>
+        <string>V.Local.sline.Declare(String)</string>
+        <string>V.Local.sesd.Declare(String)</string>
+        <string>V.Local.ssql.Declare(String)</string>
+        <string>v.Local.desd.Declare(date)</string>
+        <string />
+        <string>'get the date value</string>
+        <string>v.Local.sesd.Set(v.Screen.Form!dtpESD.Value)</string>
+        <string>F.Intrinsic.String.Format(V.Local.sesd,"MM/DD/YYYY",V.Local.sesd)</string>
+        <string>F.Intrinsic.Date.ConvertDString(V.Local.sesd.Trim,"MM/DD/YYYY",V.Local.desd)</string>
+        <string />
+        <string>'set the local variables</string>
+        <string>V.Local.sord.Set(V.Passed.000060)</string>
+        <string>F.Intrinsic.String.LPad(V.Local.sord,"0",7,V.Local.sord)</string>
+        <string>V.Local.sline.Set(V.Passed.000051)</string>
+        <string>F.Intrinsic.String.LPad(V.Local.sline,"0",3,V.Local.sline)</string>
+        <string />
+        <string>'close the form and save the data</string>
+        <string>gui.Form..Visible(false)</string>
+        <string />
+        <string>'query to see if there is already a date for that order/line</string>
+        <string>F.Intrinsic.String.Build("Select * from GCG_4222_OE_ESD where ORDER_NO = '{0}' and LINE = '{1}'",V.Local.sord.Trim,V.Local.sline.Trim,V.Local.ssql)</string>
+        <string>F.ODBC.Connection!conx.OpenRecordsetRW("rst",V.Local.ssql)</string>
+        <string>F.intrinsic.Control.If(V.ODBC.conx!rst.EOF,&lt;&gt;,True)</string>
+        <string>	F.ODBC.conx!rst.Set!ORDER_NO(V.Local.sord.Trim)</string>
+        <string>	F.ODBC.conx!rst.Set!LINE(V.Local.sline.Trim)</string>
+        <string>	F.ODBC.Conx!rst.Set!ESD(V.Local.desd.Trim)</string>
+        <string>	F.ODBC.conx!rst.Update</string>
+        <string>F.Intrinsic.Control.Else</string>
+        <string>	F.ODBC.conx!rst.AddNew</string>
+        <string>	F.ODBC.conx!rst.Set!ORDER_NO(V.Local.sord.Trim)</string>
+        <string>	F.ODBC.conx!rst.Set!LINE(V.Local.sline.Trim)</string>
+        <string>	F.ODBC.Conx!rst.Set!ESD(V.Local.desd.trim)</string>
+        <string>	F.ODBC.conx!rst.Update</string>
+        <string>F.Intrinsic.Control.EndIf</string>
+        <string />
+        <string>F.Intrinsic.Control.ExitSub</string>
+        <string />
+        <string>F.Intrinsic.Control.Label("Form_UnLoad_Err")</string>
+        <string>F.Intrinsic.Control.If(V.Ambient.ErrorNumber,&lt;&gt;,0)</string>
+        <string>	Function.Intrinsic.String.Concat("Project: GCG_4222_OE_ESD.g2u",V.Ambient.Newline,V.Ambient.Newline,"Subroutine: ",V.Ambient.CurrentSubroutine,V.Ambient.NewLine,"Error Occurred ",V.Ambient.ErrorNumber," with description ",V.Ambient.ErrorDescription,V.Local.sError)</string>
+        <string>	F.Intrinsic.UI.Msgbox(V.Local.sError)</string>
+        <string>	f.Intrinsic.Control.CallSub(unload)</string>
+        <string>Function.Intrinsic.Control.EndIf</string>
+        <string />
+        <string />
+        <string>Program.Sub.cmdSave_Click.End</string>
+        <string />
+        <string>Program.Sub.Form_UnLoad.Start</string>
+        <string>F.Intrinsic.Control.SetErrorHandler("Main_Err")</string>
+        <string>F.Intrinsic.Control.ClearErrors</string>
+        <string />
+        <string>V.Local.sError.Declare(String)</string>
+        <string />
+        <string>'close the form and program</string>
+        <string>gui.Form..Visible(false)</string>
+        <string />
+        <string>f.Intrinsic.Control.CallSub(unload)</string>
+        <string />
+        <string>F.Intrinsic.Control.ExitSub</string>
+        <string />
+        <string>F.Intrinsic.Control.Label("Main_Err")</string>
+        <string>F.Intrinsic.Control.If(V.Ambient.ErrorNumber,&lt;&gt;,0)</string>
+        <string>	Function.Intrinsic.String.Concat("Project: GCG_4222_OE_ESD.g2u",V.Ambient.Newline,V.Ambient.Newline,"Subroutine: ",V.Ambient.CurrentSubroutine,V.Ambient.NewLine,"Error Occurred ",V.Ambient.ErrorNumber," with description ",V.Ambient.ErrorDescription,V.Local.sError)</string>
+        <string>	F.Intrinsic.UI.Msgbox(V.Local.sError)</string>
+        <string>	f.Intrinsic.Control.CallSub(unload)</string>
+        <string>Function.Intrinsic.Control.EndIf</string>
+        <string />
+        <string />
+        <string>Program.Sub.Form_UnLoad.End</string>
+        <string />
+        <string>Program.Sub.CheckPromDate.Start</string>
+        <string>F.Intrinsic.Control.SetErrorHandler("CheckPromDate_Err")</string>
+        <string>F.Intrinsic.Control.ClearErrors</string>
+        <string />
+        <string>V.Local.sError.Declare(String)</string>
+        <string />
+        <string />
+        <string />
+        <string />
+        <string />
+        <string>F.Intrinsic.Control.ExitSub</string>
+        <string />
+        <string>F.Intrinsic.Control.Label("CheckPromDate_Err")</string>
+        <string>F.Intrinsic.Control.If(V.Ambient.ErrorNumber,&lt;&gt;,0)</string>
+        <string>	Function.Intrinsic.String.Concat("Project: GCG_4222_OE_ESD.g2u",V.Ambient.Newline,V.Ambient.Newline,"Subroutine: ",V.Ambient.CurrentSubroutine,V.Ambient.NewLine,"Error Occurred ",V.Ambient.ErrorNumber," with description ",V.Ambient.ErrorDescription,V.Local.sError)</string>
+        <string>	F.Intrinsic.UI.Msgbox(V.Local.sError)</string>
+        <string>	f.Intrinsic.Control.CallSub(unload)</string>
+        <string>Function.Intrinsic.Control.EndIf</string>
+        <string />
+        <string />
+        <string>Program.Sub.CheckPromDate.End</string>
+        <string />
+        <string>Program.Sub.HeaderSave.Start</string>
+        <string>F.Intrinsic.Control.SetErrorHandler("HeaderSave_Err")</string>
+        <string>F.Intrinsic.Control.ClearErrors</string>
+        <string />
+        <string>V.Local.sError.Declare(String)</string>
+        <string>V.Local.sord.Declare(String)</string>
+        <string>v.Local.sduedate.Declare(string)</string>
+        <string>v.Local.dduedate.Declare(date)</string>
+        <string>v.Local.ssql.Declare(string)</string>
+        <string>v.Local.ssql2.Declare(string)</string>
+        <string>v.Local.syear.Declare(string)</string>
+        <string>v.Local.smmdd.Declare(string)</string>
+        <string>v.Local.smm.Declare(String)</string>
+        <string>v.Local.sdd.Declare(String)</string>
+        <string>v.Local.spromdate.Declare(string)</string>
+        <string>v.Local.dpromdate.Declare(date)</string>
+        <string>v.Local.schecksql.Declare(string)</string>
+        <string />
+        <string>'get the date value</string>
+        <string>v.Local.sduedate.Set(v.Passed.000024)</string>
+        <string>f.Intrinsic.String.Left(v.Local.sduedate,4,v.Local.syear)</string>
+        <string>f.Intrinsic.String.Right(v.Local.sduedate,4,v.Local.smmdd)</string>
+        <string>f.Intrinsic.String.Left(v.Local.smmdd,2,v.Local.smm)</string>
+        <string>f.Intrinsic.String.Right(v.Local.smmdd,2,v.Local.sdd)</string>
+        <string />
+        <string>f.Intrinsic.String.Build("{0}/{1}/{2}",v.Local.smm,v.Local.sdd,v.Local.syear,v.Local.sduedate)</string>
+        <string />
+        <string>F.Intrinsic.String.Format(V.Local.sduedate,"MM/DD/YYYY",V.Local.sduedate)</string>
+        <string>F.Intrinsic.Date.ConvertDString(V.Local.sduedate.Trim,"MM/DD/YYYY",V.Local.dduedate)</string>
+        <string />
+        <string>'set the local variables</string>
+        <string>V.Local.sord.Set(V.Passed.000003)</string>
+        <string>F.Intrinsic.String.LPad(V.Local.sord,"0",7,V.Local.sord)</string>
+        <string />
+        <string>'look to see if the date has changed</string>
+        <string>f.Intrinsic.String.Build("Select DATE_DUE from V_ORDER_HEADER where ORDER_NO = '{0}'",v.Local.sord.Trim,v.Local.ssql)</string>
+        <string>F.ODBC.Connection!conx.OpenRecordsetRO("rst",V.Local.ssql)</string>
+        <string>F.intrinsic.Control.if(V.ODBC.conx!rst.EOF,=,False)</string>
+        <string>	'set the string prom date</string>
+        <string>	v.Local.spromdate.Set(v.ODBC.Conx!rst.FieldValTrim!DATE_DUE)</string>
+        <string>	F.Intrinsic.String.Format(V.Local.spromdate,"MM/DD/YYYY",V.Local.spromdate)</string>
+        <string>	F.Intrinsic.Date.ConvertDString(V.Local.spromdate.Trim,"MM/DD/YYYY",V.Local.dpromdate)</string>
+        <string>	'see if the date has changed</string>
+        <string>	f.Intrinsic.Control.If(v.Local.dduedate,&lt;&gt;,v.Local.dpromdate)</string>
+        <string>		'see if this order is in the custom table</string>
+        <string>		f.Intrinsic.String.Build("Select * from GCG_4222_OE_ESD where ORDER_NO = '{0}'",v.Local.sord.Trim,v.Local.schecksql)</string>
+        <string>		F.ODBC.Connection!conx.OpenRecordsetRW("rst2",V.Local.schecksql)</string>
+        <string>		F.intrinsic.Control.if(V.ODBC.conx!rst2.EOF,=,False)</string>
+        <string>			'update the custom table</string>
+        <string>			f.Intrinsic.String.Build("Update GCG_4222_OE_ESD set ESD = '{0}', PROMDATE = '{0}' where ORDER_NO = '{1}'",v.Local.dduedate.PervasiveDate,v.Local.sord.Trim,v.Local.ssql2)</string>
+        <string>			f.ODBC.Connection!Conx.Execute(v.Local.ssql2)</string>
+        <string>		f.Intrinsic.Control.Else</string>
+        <string>			F.ODBC.conx!rst2.AddNew</string>
+        <string>			F.ODBC.conx!rst2.Set!ORDER_NO(V.Local.sord.Trim)</string>
+        <string>			F.ODBC.Conx!rst2.Set!PROMDATE(V.Local.dduedate.trim)</string>
+        <string>			F.ODBC.Conx!rst2.Set!ESD(V.Local.dduedate.trim)</string>
+        <string>			F.ODBC.conx!rst2.Update</string>
+        <string>		f.Intrinsic.Control.EndIf</string>
+        <string>		f.ODBC.Conx!rst2.Close	</string>
+        <string>	f.Intrinsic.Control.EndIf</string>
+        <string>f.Intrinsic.Control.Else</string>
+        <string>f.Intrinsic.Control.EndIf</string>
+        <string>'close connection</string>
+        <string>f.ODBC.Conx!rst.Close</string>
+        <string />
+        <string>F.Intrinsic.Control.ExitSub</string>
+        <string />
+        <string>F.Intrinsic.Control.Label("HeaderSave_Err")</string>
+        <string>F.Intrinsic.Control.If(V.Ambient.ErrorNumber,&lt;&gt;,0)</string>
+        <string>	Function.Intrinsic.String.Concat("Project: GCG_4222_OE_ESD.g2u",V.Ambient.Newline,V.Ambient.Newline,"Subroutine: ",V.Ambient.CurrentSubroutine,V.Ambient.NewLine,"Error Occurred ",V.Ambient.ErrorNumber," with description ",V.Ambient.ErrorDescription,V.Local.sError)</string>
+        <string>	F.Intrinsic.UI.Msgbox(V.Local.sError)</string>
+        <string>	f.Intrinsic.Control.CallSub(unload)</string>
+        <string>Function.Intrinsic.Control.EndIf</string>
+        <string />
+        <string />
+        <string>Program.Sub.HeaderSave.End</string>
+        <string />
+        <string>Program.Sub.Comments.Start</string>
+        <string>${$0$}$GCG_4222_OE_ESD$}$WAW$}$9/18/2016$}$False</string>
+        <string>${$3$}$0$}$$}$0$}$-1$}$$}$12:00:00 AM$}$'    ShippingDashPickList.rpt report required</string>
+        <string>Program.Sub.Comments.End</string>
+        <string />
+        <string />
+      </Lines>
+    </TextStrings>
+  </TextSource>
+  <Scrolling>
+    <WindowOriginY>127</WindowOriginY>
+    <Options>None</Options>
+  </Scrolling>
+  <Outlining>
+    <AllowOutlining>true</AllowOutlining>
+    <ImageSize>8</ImageSize>
+    <Ranges>
+      <Range>
+        <StartPoint>
+          <X>0</X>
+          <Y>0</Y>
+        </StartPoint>
+        <EndPoint>
+          <X>2147483647</X>
+          <Y>22</Y>
+        </EndPoint>
+        <Text>Program.Sub.ScreenSU</Text>
+        <DisplayText>Program.Sub.ScreenSU</DisplayText>
+        <Visible>false</Visible>
+        <Level>0</Level>
+      </Range>
+      <Range>
+        <StartPoint>
+          <X>0</X>
+          <Y>24</Y>
+        </StartPoint>
+        <EndPoint>
+          <X>2147483647</X>
+          <Y>25</Y>
+        </EndPoint>
+        <Text>Program.Sub.Preflight</Text>
+        <DisplayText>Program.Sub.Preflight</DisplayText>
+        <Visible>false</Visible>
+        <Level>0</Level>
+      </Range>
+      <Range>
+        <StartPoint>
+          <X>0</X>
+          <Y>27</Y>
+        </StartPoint>
+        <EndPoint>
+          <X>2147483647</X>
+          <Y>107</Y>
+        </EndPoint>
+        <Text>Program.Sub.Main</Text>
+        <DisplayText>Program.Sub.Main</DisplayText>
+        <Visible>false</Visible>
+        <Level>0</Level>
+      </Range>
+      <Range>
+        <StartPoint>
+          <X>0</X>
+          <Y>109</Y>
+        </StartPoint>
+        <EndPoint>
+          <X>2147483647</X>
+          <Y>128</Y>
+        </EndPoint>
+        <Text>Program.Sub.Unload</Text>
+        <DisplayText>Program.Sub.Unload</DisplayText>
+        <Visible>false</Visible>
+        <Level>0</Level>
+      </Range>
+      <Range>
+        <StartPoint>
+          <X>0</X>
+          <Y>130</Y>
+        </StartPoint>
+        <EndPoint>
+          <X>2147483647</X>
+          <Y>176</Y>
+        </EndPoint>
+        <Text>Program.Sub.Populate</Text>
+        <DisplayText>Program.Sub.Populate</DisplayText>
+        <Visible>false</Visible>
+        <Level>0</Level>
+      </Range>
+      <Range>
+        <StartPoint>
+          <X>0</X>
+          <Y>178</Y>
+        </StartPoint>
+        <EndPoint>
+          <X>2147483647</X>
+          <Y>240</Y>
+        </EndPoint>
+        <Text>Program.Sub.PostSave</Text>
+        <DisplayText>Program.Sub.PostSave</DisplayText>
+        <Visible>true</Visible>
+        <Level>0</Level>
+      </Range>
+      <Range>
+        <StartPoint>
+          <X>0</X>
+          <Y>242</Y>
+        </StartPoint>
+        <EndPoint>
+          <X>2147483647</X>
+          <Y>295</Y>
+        </EndPoint>
+        <Text>Program.Sub.cmdSave_Click</Text>
+        <DisplayText>Program.Sub.cmdSave_Click</DisplayText>
+        <Visible>false</Visible>
+        <Level>0</Level>
+      </Range>
+      <Range>
+        <StartPoint>
+          <X>0</X>
+          <Y>297</Y>
+        </StartPoint>
+        <EndPoint>
+          <X>2147483647</X>
+          <Y>318</Y>
+        </EndPoint>
+        <Text>Program.Sub.Form_UnLoad</Text>
+        <DisplayText>Program.Sub.Form_UnLoad</DisplayText>
+        <Visible>false</Visible>
+        <Level>0</Level>
+      </Range>
+      <Range>
+        <StartPoint>
+          <X>0</X>
+          <Y>320</Y>
+        </StartPoint>
+        <EndPoint>
+          <X>2147483647</X>
+          <Y>340</Y>
+        </EndPoint>
+        <Text>Program.Sub.CheckPromDate</Text>
+        <DisplayText>Program.Sub.CheckPromDate</DisplayText>
+        <Visible>false</Visible>
+        <Level>0</Level>
+      </Range>
+      <Range>
+        <StartPoint>
+          <X>0</X>
+          <Y>342</Y>
+        </StartPoint>
+        <EndPoint>
+          <X>2147483647</X>
+          <Y>417</Y>
+        </EndPoint>
+        <Text>Program.Sub.HeaderSave</Text>
+        <DisplayText>Program.Sub.HeaderSave</DisplayText>
+        <Visible>true</Visible>
+        <Level>0</Level>
+      </Range>
+      <Range>
+        <StartPoint>
+          <X>0</X>
+          <Y>419</Y>
+        </StartPoint>
+        <EndPoint>
+          <X>2147483647</X>
+          <Y>422</Y>
+        </EndPoint>
+        <Text>Program.Sub.Comments</Text>
+        <DisplayText>Program.Sub.Comments</DisplayText>
+        <Visible>false</Visible>
+        <Level>0</Level>
+      </Range>
+    </Ranges>
+  </Outlining>
+  <HyperText />
+  <Spelling />
+  <Braces />
+</SyntaxEdit>
